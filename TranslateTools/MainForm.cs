@@ -91,6 +91,10 @@ namespace TranslateTools
 
         private void LoadMOD()
         {
+            if (checkBox1.Checked)
+            {
+
+            }
             TreeNode MODNode = trvMODTree.Nodes[0];
             MODNode.Tag = MOD;
             MODFolder[] MODFolders = MOD.GetFolders();
