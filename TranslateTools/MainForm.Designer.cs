@@ -33,7 +33,7 @@ namespace TranslateTools
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabCheck = new System.Windows.Forms.TabPage();
             this.btnGenerate = new System.Windows.Forms.Button();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chboxGenerate = new System.Windows.Forms.CheckBox();
             this.btnVersionCheck = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.cboxTargetLanguage = new System.Windows.Forms.ComboBox();
@@ -78,7 +78,7 @@ namespace TranslateTools
             // tabCheck
             // 
             this.tabCheck.Controls.Add(this.btnGenerate);
-            this.tabCheck.Controls.Add(this.checkBox1);
+            this.tabCheck.Controls.Add(this.chboxGenerate);
             this.tabCheck.Controls.Add(this.btnVersionCheck);
             this.tabCheck.Controls.Add(this.label4);
             this.tabCheck.Controls.Add(this.cboxTargetLanguage);
@@ -104,15 +104,15 @@ namespace TranslateTools
             this.btnGenerate.Text = "Generate Target Language";
             this.btnGenerate.UseVisualStyleBackColor = true;
             // 
-            // checkBox1
+            // chboxGenerate
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(238, 10);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(124, 16);
-            this.checkBox1.TabIndex = 8;
-            this.checkBox1.Text = "Generate Version File";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.chboxGenerate.AutoSize = true;
+            this.chboxGenerate.Location = new System.Drawing.Point(238, 10);
+            this.chboxGenerate.Name = "chboxGenerate";
+            this.chboxGenerate.Size = new System.Drawing.Size(124, 16);
+            this.chboxGenerate.TabIndex = 8;
+            this.chboxGenerate.Text = "Generate Version File";
+            this.chboxGenerate.UseVisualStyleBackColor = true;
             // 
             // btnVersionCheck
             // 
@@ -344,7 +344,7 @@ namespace TranslateTools
         private System.Windows.Forms.ComboBox cboxOriginalLanguage;
         private System.Windows.Forms.Button btnVersionCheck;
         private System.Windows.Forms.Button btnGenerate;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox chboxGenerate;
     }
 }
 

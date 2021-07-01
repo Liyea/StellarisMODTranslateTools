@@ -91,9 +91,9 @@ namespace TranslateTools
 
         private void LoadMOD()
         {
-            if (checkBox1.Checked)
+            if (chboxGenerate.Checked)
             {
-
+                MOD.GenerateVersionFile(txtMODCheckPath.Text);
             }
             TreeNode MODNode = trvMODTree.Nodes[0];
             MODNode.Tag = MOD;
