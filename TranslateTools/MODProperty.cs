@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TranslateTools
 {
-    public enum PropertySate { Unknow, New, Missing, Modify, Done, Remove, MoreThanOne }
+    public enum PropertySate { Unknow, New, Missing, Modify, Done, Remove, MoreThanOne, FileModify }
 
     public class MODProperty
     {
@@ -26,8 +26,27 @@ namespace TranslateTools
             IsNote = true;
         }
 
+        public MODProperty(string line, string fileName)
+        {
+            IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
+            File = new MODFile(fileName);
+            if (IsNote)
+            {
+                Text = line;
+            }
+            else
+            {
+                int EndIndex = line.IndexOf(":");
+                Name = line.Substring(0, EndIndex);
+                int StartIndex = line.IndexOf('\"');
+                EndIndex = line.LastIndexOf('\"');
+                Text = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
+            }
+        }
+
         public MODProperty(string line, MODFile file)
         {
+            File = file;
             IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
             if (IsNote)
             {
@@ -40,8 +59,21 @@ namespace TranslateTools
                 int StartIndex = line.IndexOf('\"');
                 EndIndex = line.LastIndexOf('\"');
                 Text = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
-                File = file;
             }            
+        }
+
+        public PropertySate TextCheck(MODProperty other)
+        {
+            if (other.Name != Name)
+                return PropertySate.Unknow;
+            else if (other.Language != Language)
+                return PropertySate.Unknow;
+            else if (other.Text == Text)
+                return PropertySate.Done;
+            else if (other.File.Name != File.Name)
+                return PropertySate.FileModify;
+            else
+                return PropertySate.Modify;
         }
 
         //public PropertySate StateCheck(MODProperty target)

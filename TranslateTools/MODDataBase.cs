@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 
 namespace TranslateTools
 {
@@ -10,6 +11,9 @@ namespace TranslateTools
         public string SupportVesrion;
         public string Path;
         public Dictionary<Language, MODFolder> Folders;
+        public Dictionary<Language, MODFolder> VersionFolders;
+        public Dictionary<string, MODProperty> Properties;
+        public Dictionary<string, MODProperty> VersionProperties;
         public DateTime MODLastChange;
         public Language OriginLanguage;
         public Language TargetLanguage;
@@ -73,7 +77,7 @@ namespace TranslateTools
                 throw new FileLoadException("This MOD doesn't have localisation files.");
         }
 
-        public MODFolder[] GetFoldersArray()
+        public MODFolder[] GetFolders()
         {
             Dictionary<Language, MODFolder>.ValueCollection folderValue = Folders.Values;
             List<MODFolder> folderArray = new List<MODFolder>();
@@ -94,19 +98,19 @@ namespace TranslateTools
         {
             StreamWriter versionFile = new StreamWriter(versionFilePath);
             versionFile.WriteLine(MODName);
-            versionFile.WriteLine(SupportVesrion);
+            //versionFile.WriteLine(SupportVesrion);
             Dictionary<Language, MODFolder>.ValueCollection folderValues = Folders.Values;
             foreach (var folder in folderValues)
             {
                 if (!folder.IsOrigin)
                     continue;
-                versionFile.WriteLine("<folder>");
+                versionFile.WriteLine($"<folder>");
                 versionFile.WriteLine(folder.Language.ToString());
                 versionFile.WriteLine(folder.ModifyTime.ToString());
                 Dictionary<string, MODFile>.ValueCollection fileValues = folder.Files.Values;
                 foreach (var file in fileValues)
                 {
-                    versionFile.WriteLine("<file>");
+                    versionFile.WriteLine($"<file>");
                     versionFile.WriteLine(file.Name);
                     //versionFile.WriteLine("<properties>");
                     Dictionary<string, MODProperty>.ValueCollection propertyValues = file.Properties.Values;
@@ -120,6 +124,57 @@ namespace TranslateTools
                 versionFile.WriteLine("<folder_end>");
             }
             versionFile.Close();
+        }
+
+        public bool LoadVersionFile(string filePath)
+        {
+            VersionFolders = new Dictionary<Language, MODFolder>();
+            VersionProperties = new Dictionary<string, MODProperty>();
+
+            StreamReader versionFile = new StreamReader(filePath);
+            string line = versionFile.ReadLine();
+            MODFolder folder;
+            MODFile file;
+
+            if (line != MODName)
+                return false;
+
+            while (!versionFile.EndOfStream)
+            {
+                line = versionFile.ReadLine();
+                if (line == "<folder>")
+                {
+                    line = versionFile.ReadLine();
+                    Language l = (Language)Enum.Parse(typeof(Language), line, true);
+                    folder = new MODFolder(l, this);
+                    VersionFolders.Add(l, folder);
+                    while (!versionFile.EndOfStream)
+                    {
+                        line = versionFile.ReadLine();
+                        if (line == "<folder_end>")
+                            break;
+                        else if (line == "<file>")
+                        {
+                            line = versionFile.ReadLine();
+                            
+                            file = new MODFile(line);
+                            folder.AddFile(file);
+
+                            while (!versionFile.EndOfStream)
+                            {
+                                line = versionFile.ReadLine();
+                                if (line == "<file_end>")
+                                    break; 
+                                MODProperty property = new MODProperty(line, file);
+                                folder.Properties.Add(property.Name, property);
+                                
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

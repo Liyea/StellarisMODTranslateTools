@@ -20,6 +20,15 @@ namespace TranslateTools
         public MODFolder()
         {
             Files = new Dictionary<string, MODFile>();
+            Properties = new Dictionary<string, MODProperty>();
+        }
+
+        public MODFolder(Language language, MODDataBase parent)
+        {
+            Files = new Dictionary<string, MODFile>();
+            Properties = new Dictionary<string, MODProperty>();
+            Language = language;
+            MOD = parent;
         }
 
         public MODFolder(string folderPath, MODDataBase parent, bool loadFiles)
@@ -54,7 +63,7 @@ namespace TranslateTools
             }
         }
 
-        public MODFile[] GetFilesArray()
+        public MODFile[] GetFiles()
         {
             Dictionary<string, MODFile>.ValueCollection filesValue = Files.Values;
             List<MODFile> filesArray = new List<MODFile>();
@@ -63,6 +72,12 @@ namespace TranslateTools
                 filesArray.Add(file);
             }
             return filesArray.ToArray();
+        }
+
+        public void AddFile(MODFile file)
+        {
+            Files.Add(file.Name, file);
+            file.Folder = this;
         }
 
         public MODFolder Clone(MODDataBase database, Language language, string folderPath)

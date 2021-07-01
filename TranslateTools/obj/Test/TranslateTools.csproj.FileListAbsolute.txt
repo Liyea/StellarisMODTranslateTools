@@ -1,0 +1,9 @@
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\bin\Test\TranslateTools.exe
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\bin\Test\TranslateTools.pdb
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.csprojAssemblyReference.cache
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.MainForm.resources
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.Properties.Resources.resources
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.csproj.GenerateResource.cache
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.csproj.CoreCompileInputs.cache
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.exe
+E:\ALL\Software\StellarisMODTranslateTools\TranslateTools\obj\Test\TranslateTools.pdb

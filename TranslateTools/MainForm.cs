@@ -18,13 +18,15 @@ namespace TranslateTools
         private MODDataBaseInput NodeSet;
         private AddTreeNode AddNode;
         private Thread FileLoading;
-        private MODDataBase MOD;
+        private MODDataBase MOD;        
 
         public MainForm()
         {
             InitializeComponent();
             NodeSet = new MODDataBaseInput(NodeSetMethod);
             AddNode = new AddTreeNode(AddNodeMethod);
+            cboxOriginalLanguage.Items.Clear();
+            cboxTargetLanguage.Items.Clear();
         }
 
         private void btnTargetPathBrowse_Click(object sender, EventArgs e)
@@ -36,10 +38,26 @@ namespace TranslateTools
 
         private void btnTargetCheck_Click(object sender, EventArgs e)
         {
+            trvMODTree.Nodes.Clear();
             MOD = new MODDataBase(txtMODPath.Text);
+            Text = "Stellaris MOD Translate Tools: " + MOD.MODName;
             FileLoading = new Thread(LoadMOD);
             TreeNode MODNode = new TreeNode(MOD.MODName);
-            trvMODTree.Nodes.Add(MODNode);
+            trvMODTree.Nodes.Add(MODNode);            
+            for (int i = 0; i < 8; i++)
+            {
+                Language l = (Language)i;
+                if (MOD.Folders.ContainsKey(l))
+                {
+                    cboxOriginalLanguage.Items.Add(l.ToString());
+                }
+                else
+                {
+                    cboxTargetLanguage.Items.Add(l.ToString());
+                }
+            }
+            cboxOriginalLanguage.SelectedIndex = 0;
+            cboxTargetLanguage.SelectedIndex = 0;
             FileLoading.Start();
         }
 
@@ -75,7 +93,7 @@ namespace TranslateTools
         {
             TreeNode MODNode = trvMODTree.Nodes[0];
             MODNode.Tag = MOD;
-            MODFolder[] MODFolders = MOD.GetFoldersArray();
+            MODFolder[] MODFolders = MOD.GetFolders();
             foreach (var folder in MODFolders)
             {
                 TreeNode FolderNode = new TreeNode(folder.Language.ToString() + "(Original)");
@@ -83,14 +101,14 @@ namespace TranslateTools
                 Invoke(AddNode, MODNode, FolderNode);
                 FolderNode.Tag = folder;
                 folder.LoadFiles();
-                MODFile[] MODFiles = folder.GetFilesArray();
+                MODFile[] MODFiles = folder.GetFiles();
                 foreach (var file in MODFiles)
                 {
                     TreeNode FileNode = new TreeNode(file.Name);
                     FileNode.Name = file.Name;
                     Invoke(AddNode, FolderNode, FileNode);
                     FileNode.Tag = file;
-                    MODProperty[] MODProperties = file.GetPropertiesArray();
+                    MODProperty[] MODProperties = file.GetProperties();
                     foreach (var property in MODProperties)
                     {
                         TreeNode propertyNode = new TreeNode(property.Name);
@@ -98,7 +116,7 @@ namespace TranslateTools
                         Invoke(AddNode, FileNode, propertyNode);
                         propertyNode.Tag = property;
                     }
-                }
+                }                
             }
         }
     }

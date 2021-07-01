@@ -22,10 +22,18 @@ namespace TranslateTools
         public FileState State;
         public bool Exsit = true;
 
+        public MODFile(string FileName)
+        {
+            Name = FileName;
+            Lines = new List<MODProperty>();
+            Properties = new Dictionary<string, MODProperty>();
+        }
+
         public MODFile(string filePath, MODFolder parent)
         {
             // Initialize Dictionary
             Lines = new List<MODProperty>();
+            Properties = new Dictionary<string, MODProperty>();
 
             // Set File Name
             int startIdx = filePath.LastIndexOf('\\') + 1;
@@ -44,12 +52,11 @@ namespace TranslateTools
                 State = FileState.Error;
                 return;
             }
-            MODProperty head = new MODProperty();
-            head.Text = line;
-            Lines.Add(head);
 
             // Add Properties
-            Properties = new Dictionary<string, MODProperty>();
+            MODProperty head = new MODProperty();
+            head.Text = line;
+            Lines.Add(head); 
             while (!fileReader.EndOfStream)
             {
                 line = fileReader.ReadLine();
@@ -72,7 +79,7 @@ namespace TranslateTools
             State = FileState.Done;
         }
 
-        public MODProperty[] GetPropertiesArray()
+        public MODProperty[] GetProperties()
         {
             Dictionary<string, MODProperty>.ValueCollection propertyValues = Properties.Values;
             List<MODProperty> propertiesArray = new List<MODProperty>();
