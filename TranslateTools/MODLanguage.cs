@@ -7,7 +7,6 @@ namespace TranslateTools
 {
     public enum Language { BrazPor, English, French, German, Polish, Russian, SimpleChinese, Spanish, Unknow }
 
-
     static class MODLanguage
     {
     #region Static Function

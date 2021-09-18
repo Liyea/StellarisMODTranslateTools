@@ -8,7 +8,7 @@ namespace TranslateTools
 {
     public class MODFolder
     {
-        public string Path;
+        public string FolderPath;
         public Dictionary<string, MODFile> Files;
         public Dictionary<string, MODProperty> Properties;        
         public Language Language;
@@ -33,7 +33,7 @@ namespace TranslateTools
 
         public MODFolder(string folderPath, MODDataBase parent, bool loadFiles)
         {
-            Path = folderPath;
+            FolderPath = folderPath;
             Files = new Dictionary<string, MODFile>();
             Properties = new Dictionary<string, MODProperty>();
             Language = MODLanguage.GetFolderLanguage(folderPath);
@@ -78,12 +78,19 @@ namespace TranslateTools
         {
             Files.Add(file.Name, file);
             file.Folder = this;
+            file.PathModify();
+        }
+
+        public void AddFile(string fileName)
+        {
+            MODFile file = new MODFile(fileName);            
+            AddFile(file);
         }
 
         public MODFolder Clone(MODDataBase database, Language language, string folderPath)
         {
             MODFolder cloneFolder = (MODFolder)MemberwiseClone();
-            cloneFolder.Path = folderPath;
+            cloneFolder.FolderPath = folderPath;
             cloneFolder.Files.Clear();
             cloneFolder.MOD = database;
             cloneFolder.Language = language;
@@ -94,7 +101,7 @@ namespace TranslateTools
                 MODFile cloneFile = f.Clone(cloneFolder);
                 cloneFile.PathModify();
                 cloneFolder.Files.Add(cloneFile.Name, cloneFile);
-                fileList.Add(cloneFile.Path);
+                fileList.Add(cloneFile.FilePath);
             }
             cloneFolder.FilePathList = fileList.ToArray();
             cloneFolder.IsOrigin = false;

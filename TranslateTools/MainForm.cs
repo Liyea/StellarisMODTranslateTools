@@ -13,36 +13,73 @@ namespace TranslateTools
 {
     public partial class MainForm : Form
     {
-        private delegate void MODDataBaseInput(MODDataBase mod);
-        private delegate void AddTreeNode(TreeNode parent, TreeNode child);
-        private MODDataBaseInput NodeSet;
-        private AddTreeNode AddNode;
+        private delegate void AddNodeToNode(TreeNode parent, TreeNode child);
+        private delegate void AddNodeToTreeView(TreeView treeView, TreeNode node);
+        private AddNodeToNode addNodeToNode;
+        private AddNodeToTreeView addNodeToTreeView;
         private Thread FileLoading;
-        private MODDataBase MOD;        
+        private MODDataBase MOD;
+        private MODDataBase MODTranslate;
 
         public MainForm()
         {
             InitializeComponent();
-            NodeSet = new MODDataBaseInput(NodeSetMethod);
-            AddNode = new AddTreeNode(AddNodeMethod);
+            addNodeToNode = new AddNodeToNode(AddNodeToNodeMethod);
+            addNodeToTreeView = new AddNodeToTreeView(AddNodeToTreeViewMethod);
             cboxOriginalLanguage.Items.Clear();
             cboxTargetLanguage.Items.Clear();
         }
 
-        private void btnTargetPathBrowse_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog.Description = "Select NSC2 MOD root folder";
-            if (folderBrowserDialog.ShowDialog() != DialogResult.Cancel)
-                txtMODPath.Text = folderBrowserDialog.SelectedPath;
-        }
-
+        #region ButtonClick
         private void btnTargetCheck_Click(object sender, EventArgs e)
         {
-            trvMODTree.Nodes.Clear();
-            MOD = new MODDataBase(txtMODPath.Text);
+            try
+            {
+                // Load MOD descriptor and localisation folders
+                MOD = new MODDataBase(txtMODPath.Text);
+            }
+            catch(FileLoadException flex)
+            {                
+                // Show error message
+                MessageBox.Show(flex.Message,"Original MOD files loading failed",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                // Load Translate MOD descriptor and localisation file
+                MODTranslate = new MODDataBase(txtMODTranslatePath.Text);
+            }
+            catch (FileLoadException flex)
+            {
+                // Show error message
+                if (flex.InnerException is DescriptorWithoutFoldersException)
+                {
+                    if( MessageBox.Show(flex.InnerException.Message+"\n Do you want create a new MOD?", 
+                        "Translate MOD files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            MODTranslate = new MODDataBase(folderBrowserDialog.SelectedPath, MOD.MODName + "_Translate");
+                        }
+                        else
+                            return;
+                    }
+                    
+                }
+                else
+                {
+                    MessageBox.Show(flex.InnerException.Message, "Translate MOD files loading failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+            }
+
             Text = "Stellaris MOD Translate Tools: " + MOD.MODName;
-            FileLoading = new Thread(LoadMOD);
+
+            FileLoading = new Thread(GenerateTree);
             TreeNode MODNode = new TreeNode(MOD.MODName);
+            trvMODTree.Nodes.Clear();
             trvMODTree.Nodes.Add(MODNode);            
             for (int i = 0; i < 8; i++)
             {
@@ -56,72 +93,112 @@ namespace TranslateTools
                     cboxTargetLanguage.Items.Add(l.ToString());
                 }
             }
+            FileLoading.Start();
             cboxOriginalLanguage.SelectedIndex = 0;
             cboxTargetLanguage.SelectedIndex = 0;
-            FileLoading.Start();
+        }
+
+        private void btnOriginalPathBrowse_Click(object sender, EventArgs e)
+        {
+            ofdDescriptor.Title = "Select Original MOD Descriptor";
+            if (ofdDescriptor.ShowDialog() == DialogResult.OK)
+                txtMODPath.Text = ofdDescriptor.FileName;
+        }
+
+        private void btnTargetPathBrowse_Click(object sender, EventArgs e)
+        {
+            ofdDescriptor.Title = "Select Translate MOD Descriptor";
+            if (ofdDescriptor.ShowDialog() == DialogResult.OK)
+                txtMODTranslatePath.Text = ofdDescriptor.FileName;
         }
 
         private void btnOldVerBrowse_Click(object sender, EventArgs e)
         {
-            int pathlength = txtMODCheckPath.Text.Length;
-            string path = txtMODCheckPath.Text.Substring(pathlength - 3);
+            string path = Path.GetExtension(txtMODCheckPath.Text);            
             if (path == ".smodc")
             {
-                pathlength = txtMODCheckPath.Text.LastIndexOf('\\');
-                path = txtMODCheckPath.Text.Substring(0, pathlength);
+                path = Path.GetDirectoryName(txtMODCheckPath.Text);
             }
             else
                 path = txtMODCheckPath.Text;
+
             if (Directory.Exists(path))
-                saveFileDialog.InitialDirectory = path;
+                sfdSMOF.InitialDirectory = path;
             
-            if (saveFileDialog.ShowDialog() != DialogResult.Cancel)
-                txtMODCheckPath.Text = saveFileDialog.FileName;
+            if (sfdSMOF.ShowDialog() == DialogResult.OK)
+                txtMODCheckPath.Text = sfdSMOF.FileName;
         }
-
-        private void NodeSetMethod(MODDataBase mod)
+        #endregion
+        
+        private void AddNodeToTreeViewMethod(TreeView treeView, TreeNode child)
         {
-
+            treeView.Nodes.Add(child);
         }
 
-        private void AddNodeMethod(TreeNode parent,TreeNode child)
+        private void AddNodeToNodeMethod(TreeNode parent,TreeNode child)
         {
             parent.Nodes.Add(child);
         }
 
-        private void LoadMOD()
+        private void GenerateTree()
         {
-            if (chboxGenerate.Checked)
+            if (!File.Exists(txtMODCheckPath.Text))
             {
-                MOD.GenerateVersionFile(txtMODCheckPath.Text);
-            }
-            TreeNode MODNode = trvMODTree.Nodes[0];
-            MODNode.Tag = MOD;
-            MODFolder[] MODFolders = MOD.GetFolders();
-            foreach (var folder in MODFolders)
-            {
-                TreeNode FolderNode = new TreeNode(folder.Language.ToString() + "(Original)");
-                FolderNode.Name = folder.Language.ToString();
-                Invoke(AddNode, MODNode, FolderNode);
-                FolderNode.Tag = folder;
-                folder.LoadFiles();
-                MODFile[] MODFiles = folder.GetFiles();
-                foreach (var file in MODFiles)
+                if(MessageBox.Show("Version file couldn't be found.\n" +
+                    "Do you want to create new one?", "Version File Missing", MessageBoxButtons.YesNo) == DialogResult.OK)
                 {
-                    TreeNode FileNode = new TreeNode(file.Name);
-                    FileNode.Name = file.Name;
-                    Invoke(AddNode, FolderNode, FileNode);
-                    FileNode.Tag = file;
-                    MODProperty[] MODProperties = file.GetProperties();
-                    foreach (var property in MODProperties)
-                    {
-                        TreeNode propertyNode = new TreeNode(property.Name);
-                        propertyNode.Name = property.Name;
-                        Invoke(AddNode, FileNode, propertyNode);
-                        propertyNode.Tag = property;
-                    }
-                }                
+                    MOD.GenerateVersionFile(txtMODCheckPath.Text);
+                }
             }
+            else
+            {
+
+            }
+
+            MODFolder[] MODFolders = MOD.GetFolders();
+            MODFile[] MODFiles = MODFolders[0].GetFiles();
+            foreach (var file in MODFiles)
+            {
+                TreeNode FileNode = new TreeNode(file.Name);
+                FileNode.Name = file.Name;
+                Invoke(addNodeToTreeView, trvMODTree, FileNode);                
+                MODProperty[] MODProperties = file.GetProperties();
+                foreach (var property in MODProperties)
+                {
+                    TreeNode propertyNode = new TreeNode(property.Name);
+                    propertyNode.Name = property.Name;
+                    Invoke(addNodeToNode, FileNode, propertyNode);
+                }
+            }            
+            //foreach (var folder in MODFolders)
+            //{
+            //    TreeNode FolderNode = new TreeNode(folder.Language.ToString() + "(Original)");
+            //    FolderNode.Name = folder.Language.ToString();
+            //    Invoke(addNodeToNode, MODNode, FolderNode);
+            //    FolderNode.Tag = folder;
+            //    folder.LoadFiles();
+            //    MODFile[] MODFiles = folder.GetFiles();
+            //    foreach (var file in MODFiles)
+            //    {
+            //        TreeNode FileNode = new TreeNode(file.Name);
+            //        FileNode.Name = file.Name;
+            //        Invoke(addNodeToNode, FolderNode, FileNode);
+            //        FileNode.Tag = file;
+            //        MODProperty[] MODProperties = file.GetProperties();
+            //        foreach (var property in MODProperties)
+            //        {
+            //            TreeNode propertyNode = new TreeNode(property.Name);
+            //            propertyNode.Name = property.Name;
+            //            Invoke(addNodeToNode, FileNode, propertyNode);
+            //            propertyNode.Tag = property;
+            //        }
+            //    }                
+            //}
+        }
+
+        private void SelectNode(object sender, TreeNodeMouseClickEventArgs e)
+        {
+
         }
     }
 }

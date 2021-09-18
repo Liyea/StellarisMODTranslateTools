@@ -13,7 +13,7 @@ namespace TranslateTools
         public MODFolder Folder;
         public List<MODProperty> Lines;
         public Dictionary<string, MODProperty> Properties;
-        public string Path;
+        public string FilePath;
         public string Name;
         public Language Language
         {
@@ -39,7 +39,7 @@ namespace TranslateTools
             int startIdx = filePath.LastIndexOf('\\') + 1;
             int endIdx = filePath.LastIndexOf('_') - 2;
             Name = filePath.Substring(startIdx, endIdx - startIdx);
-            Path = filePath;
+            FilePath = filePath;
             Folder = parent;
 
             // Find File Language
@@ -104,7 +104,7 @@ namespace TranslateTools
                     cloneFile.Properties.Add(clonePropety.Name, clonePropety);
             }
             cloneFile.Name = (string)Name.Clone();
-            cloneFile.Path = (string)Path.Clone();
+            cloneFile.FilePath = (string)FilePath.Clone();
             State = FileState.Modify;
             Exsit = false;
 
@@ -113,15 +113,15 @@ namespace TranslateTools
 
         public void PathModify()
         {
-            string folderPath = Folder.Path;
-            Path = folderPath + '\\' + Name + '_' + MODLanguage.GetProperty(Language) + ".yml";
+            string folderPath = Folder.FolderPath;
+            FilePath = folderPath + '\\' + Name + '_' + MODLanguage.GetProperty(Language) + ".yml";
         }
 
         public void FileGenerate()
         {
             if (Folder.IsOrigin)
                 throw new AccessViolationException("You can generate original file");
-            StreamWriter writer = new StreamWriter(Path);
+            StreamWriter writer = new StreamWriter(FilePath);
             for (int i = 0; i < Lines.Count; i++)
             {
                 writer.WriteLine(Lines[i].GetLine());

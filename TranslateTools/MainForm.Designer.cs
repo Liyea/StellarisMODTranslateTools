@@ -44,13 +44,18 @@ namespace TranslateTools
             this.btnMODLoad = new System.Windows.Forms.Button();
             this.tabTranslate = new System.Windows.Forms.TabPage();
             this.tabSetting = new System.Windows.Forms.TabPage();
+            this.btnTargetPathBrowse = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtMODTranslatePath = new System.Windows.Forms.TextBox();
             this.btnOldVerBrowse = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.txtMODCheckPath = new System.Windows.Forms.TextBox();
-            this.btnTargetPathBrowse = new System.Windows.Forms.Button();
+            this.btnOriginalPathBrowse = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtMODPath = new System.Windows.Forms.TextBox();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.sfdSMOF = new System.Windows.Forms.SaveFileDialog();
+            this.ofdDescriptor = new System.Windows.Forms.OpenFileDialog();
+            this.sfdDescriptor = new System.Windows.Forms.SaveFileDialog();
             this.tabControl1.SuspendLayout();
             this.tabCheck.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -116,6 +121,7 @@ namespace TranslateTools
             // 
             // btnVersionCheck
             // 
+            this.btnVersionCheck.Enabled = false;
             this.btnVersionCheck.Location = new System.Drawing.Point(123, 6);
             this.btnVersionCheck.Name = "btnVersionCheck";
             this.btnVersionCheck.Size = new System.Drawing.Size(109, 23);
@@ -203,6 +209,7 @@ namespace TranslateTools
             this.trvMODTree.Name = "trvMODTree";
             this.trvMODTree.Size = new System.Drawing.Size(358, 501);
             this.trvMODTree.TabIndex = 1;
+            this.trvMODTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.SelectNode);
             // 
             // btnMODLoad
             // 
@@ -226,10 +233,13 @@ namespace TranslateTools
             // 
             // tabSetting
             // 
+            this.tabSetting.Controls.Add(this.btnTargetPathBrowse);
+            this.tabSetting.Controls.Add(this.label5);
+            this.tabSetting.Controls.Add(this.txtMODTranslatePath);
             this.tabSetting.Controls.Add(this.btnOldVerBrowse);
             this.tabSetting.Controls.Add(this.label2);
             this.tabSetting.Controls.Add(this.txtMODCheckPath);
-            this.tabSetting.Controls.Add(this.btnTargetPathBrowse);
+            this.tabSetting.Controls.Add(this.btnOriginalPathBrowse);
             this.tabSetting.Controls.Add(this.label1);
             this.tabSetting.Controls.Add(this.txtMODPath);
             this.tabSetting.Location = new System.Drawing.Point(4, 22);
@@ -238,6 +248,33 @@ namespace TranslateTools
             this.tabSetting.TabIndex = 2;
             this.tabSetting.Text = "Settings";
             this.tabSetting.UseVisualStyleBackColor = true;
+            // 
+            // btnTargetPathBrowse
+            // 
+            this.btnTargetPathBrowse.Location = new System.Drawing.Point(440, 145);
+            this.btnTargetPathBrowse.Name = "btnTargetPathBrowse";
+            this.btnTargetPathBrowse.Size = new System.Drawing.Size(75, 23);
+            this.btnTargetPathBrowse.TabIndex = 17;
+            this.btnTargetPathBrowse.Text = "Browse";
+            this.btnTargetPathBrowse.UseVisualStyleBackColor = true;
+            this.btnTargetPathBrowse.Click += new System.EventHandler(this.btnTargetPathBrowse_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(22, 130);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(169, 12);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "Target MOD Folder Descriptor file:";
+            // 
+            // txtMODTranslatePath
+            // 
+            this.txtMODTranslatePath.Location = new System.Drawing.Point(24, 145);
+            this.txtMODTranslatePath.Name = "txtMODTranslatePath";
+            this.txtMODTranslatePath.Size = new System.Drawing.Size(410, 22);
+            this.txtMODTranslatePath.TabIndex = 15;
+            this.txtMODTranslatePath.Text = "C:\\Users\\Liyea\\OneDrive\\Documents\\Paradox Interactive\\Stellaris\\mod\\nsc2cn.mod";
             // 
             // btnOldVerBrowse
             // 
@@ -266,24 +303,24 @@ namespace TranslateTools
             this.txtMODCheckPath.TabIndex = 12;
             this.txtMODCheckPath.Text = "C:\\Users\\Liyea\\Google 雲端硬碟\\NSCMOD\\NSC2 Checkfile\\MODCheckFile.smodc";
             // 
-            // btnTargetPathBrowse
+            // btnOriginalPathBrowse
             // 
-            this.btnTargetPathBrowse.Location = new System.Drawing.Point(440, 39);
-            this.btnTargetPathBrowse.Name = "btnTargetPathBrowse";
-            this.btnTargetPathBrowse.Size = new System.Drawing.Size(75, 23);
-            this.btnTargetPathBrowse.TabIndex = 11;
-            this.btnTargetPathBrowse.Text = "Browse";
-            this.btnTargetPathBrowse.UseVisualStyleBackColor = true;
-            this.btnTargetPathBrowse.Click += new System.EventHandler(this.btnTargetPathBrowse_Click);
+            this.btnOriginalPathBrowse.Location = new System.Drawing.Point(440, 39);
+            this.btnOriginalPathBrowse.Name = "btnOriginalPathBrowse";
+            this.btnOriginalPathBrowse.Size = new System.Drawing.Size(75, 23);
+            this.btnOriginalPathBrowse.TabIndex = 11;
+            this.btnOriginalPathBrowse.Text = "Browse";
+            this.btnOriginalPathBrowse.UseVisualStyleBackColor = true;
+            this.btnOriginalPathBrowse.Click += new System.EventHandler(this.btnOriginalPathBrowse_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(22, 24);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(123, 12);
+            this.label1.Size = new System.Drawing.Size(144, 12);
             this.label1.TabIndex = 10;
-            this.label1.Text = "Target MOD Folder Path:";
+            this.label1.Text = "Original MOD Descriptor file:";
             // 
             // txtMODPath
             // 
@@ -291,14 +328,28 @@ namespace TranslateTools
             this.txtMODPath.Name = "txtMODPath";
             this.txtMODPath.Size = new System.Drawing.Size(410, 22);
             this.txtMODPath.TabIndex = 9;
-            this.txtMODPath.Text = "D:\\SteamLibrary\\steamapps\\workshop\\content\\281990\\683230077";
+            this.txtMODPath.Text = "D:\\SteamLibrary\\steamapps\\workshop\\content\\281990\\683230077\\descriptor.mod";
             // 
-            // saveFileDialog
+            // sfdSMOF
             // 
-            this.saveFileDialog.CheckFileExists = true;
-            this.saveFileDialog.FileName = "MODCheck";
-            this.saveFileDialog.Filter = "Stellaris MOD Check File|*.smoc";
-            this.saveFileDialog.Title = "Save Check File";
+            this.sfdSMOF.CheckFileExists = true;
+            this.sfdSMOF.FileName = "MODCheck";
+            this.sfdSMOF.Filter = "Stellaris MOD Check File|*.smoc";
+            this.sfdSMOF.Title = "Save Check File";
+            // 
+            // ofdDescriptor
+            // 
+            this.ofdDescriptor.DefaultExt = "mod";
+            this.ofdDescriptor.FileName = "descriptor.mod";
+            this.ofdDescriptor.Filter = "Stellaris MOD file|*.mod";
+            // 
+            // sfdDescriptor
+            // 
+            this.sfdDescriptor.CheckFileExists = true;
+            this.sfdDescriptor.DefaultExt = "mod";
+            this.sfdDescriptor.FileName = "MODCheck";
+            this.sfdDescriptor.Filter = "Stellaris MOD file|*.mod";
+            this.sfdDescriptor.Title = "Save Check File";
             // 
             // MainForm
             // 
@@ -328,14 +379,14 @@ namespace TranslateTools
         private System.Windows.Forms.TabPage tabCheck;
         private System.Windows.Forms.TabPage tabTranslate;
         private System.Windows.Forms.TabPage tabSetting;
-        private System.Windows.Forms.Button btnTargetPathBrowse;
+        private System.Windows.Forms.Button btnOriginalPathBrowse;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtMODPath;
         private System.Windows.Forms.Button btnMODLoad;
         private System.Windows.Forms.Button btnOldVerBrowse;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtMODCheckPath;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.SaveFileDialog sfdSMOF;
         private System.Windows.Forms.TreeView trvMODTree;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Label label4;
@@ -345,6 +396,11 @@ namespace TranslateTools
         private System.Windows.Forms.Button btnVersionCheck;
         private System.Windows.Forms.Button btnGenerate;
         private System.Windows.Forms.CheckBox chboxGenerate;
+        private System.Windows.Forms.OpenFileDialog ofdDescriptor;
+        private System.Windows.Forms.Button btnTargetPathBrowse;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtMODTranslatePath;
+        private System.Windows.Forms.SaveFileDialog sfdDescriptor;
     }
 }
 

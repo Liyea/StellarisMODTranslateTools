@@ -9,7 +9,7 @@ namespace TranslateTools
     {
         public string MODName;
         public string SupportVesrion;
-        public string Path;
+        public string MODPath;
         public Dictionary<Language, MODFolder> Folders;
         public Dictionary<Language, MODFolder> VersionFolders;
         public Dictionary<string, MODProperty> Properties;
@@ -22,24 +22,26 @@ namespace TranslateTools
         {
             MODName = "New MOD";
             SupportVesrion = "*.*.*";
-            Path = "";
+            MODPath = "";
             Folders = new Dictionary<Language, MODFolder>();
         }
 
-        public MODDataBase(StreamReader versionFile)
+        public MODDataBase(string MODPath,string MODName)
         {
-
+            // TODO: MOD generator
+            Folders = new Dictionary<Language, MODFolder>();
+            StreamWriter Descriptor = new StreamWriter(MODPath+"\\descriptor.mod");
+            Descriptor.WriteLine();
         }
 
-        public MODDataBase(string path)
+        public MODDataBase(string descriptorPath)
         {
             Folders = new Dictionary<Language, MODFolder>();
 
-            //Find descriptor file
-            string descriptorPath = path + "\\descriptor.mod";
+            //Find descriptor file            
             if (!File.Exists(descriptorPath))
-                throw new FileLoadException("\"Descriptor.mod\" doesn't exist.");
-            Path = path;
+                throw new FileLoadException("MODDataBase error", new DescriptorMissingException());
+            MODPath = Path.GetDirectoryName(descriptorPath);
             
             // Read MOD Name
             StreamReader reader = new StreamReader(descriptorPath);  
@@ -50,6 +52,7 @@ namespace TranslateTools
 
             // Read SupportVesrion
             SupportVesrion = "*.*.*";
+            bool hasSupportedVersion = false;
             while (!reader.EndOfStream)
             {
                 line = reader.ReadLine();
@@ -57,16 +60,20 @@ namespace TranslateTools
                 if (lines[0] == "supported_version")
                 {
                     SupportVesrion = lines[1].Substring(1, lines[1].Length - 2);
+                    hasSupportedVersion = true;
                     break;
                 }
             }
             reader.Close();
 
+            if (!hasSupportedVersion)
+                throw new FileLoadException("MODDataBase error", new DescriptorInvalidException());
+
             // Check MOD Language folder
             for (int i = 0; i < 8; i++)
             {
                 Language li = (Language)i;
-                string folderPath = Path + "\\localisation\\" + MODLanguage.GetFolderName(li);
+                string folderPath = MODPath + "\\localisation\\" + MODLanguage.GetFolderName(li);
                 if (Directory.Exists(folderPath))
                 {
                     Folders.Add(li, new MODFolder(folderPath, this, false));
@@ -74,7 +81,7 @@ namespace TranslateTools
                 }
             }
             if (Folders.Count == 0)
-                throw new FileLoadException("This MOD doesn't have localisation files.");
+                throw new FileLoadException("MODDataBase error", new DescriptorWithoutFoldersException());
         }
 
         public MODFolder[] GetFolders()
