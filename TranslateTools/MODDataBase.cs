@@ -5,50 +5,66 @@ using System.Windows.Forms;
 
 namespace TranslateTools
 {
-    public class MODDataBase
+    public class ModDataBase
     {
-        public string MODName;
+        public string ModName;
         public string SupportVesrion;
-        public string MODPath;
-        public Dictionary<Language, MODFolder> Folders;
-        public Dictionary<Language, MODFolder> VersionFolders;
-        public Dictionary<string, MODProperty> Properties;
-        public Dictionary<string, MODProperty> VersionProperties;
+        public string ModPath;
+        public Dictionary<Language, ModFolder> Folders;
+        public Dictionary<Language, ModFolder> CheckingFolders;
+        public Dictionary<string, ModProperty> Properties;
+        public Dictionary<string, ModProperty> CheckingProperties;
+        private bool checkDataExsist = false;
         public DateTime MODLastChange;
         public Language OriginLanguage;
         public Language TargetLanguage;
 
-        public MODDataBase()
+        /// <summary>
+        /// Create an empty database
+        /// </summary>
+        public ModDataBase()
         {
-            MODName = "New MOD";
+            ModName = "New MOD";
             SupportVesrion = "*.*.*";
-            MODPath = "";
-            Folders = new Dictionary<Language, MODFolder>();
+            ModPath = "";
+            Folders = new Dictionary<Language, ModFolder>();
+            Properties = new Dictionary<string, ModProperty>();
         }
 
-        public MODDataBase(string MODPath,string MODName)
+        /// <summary>
+        /// Generate a new MOD with descriptor and folders
+        /// </summary>
+        /// <param name="MODFolderPath">The full path of MOD folder</param>
+        /// <param name="MODName">The name of new MOD</param>
+        public ModDataBase(string MODFolderPath,string MODName)
         {
             // TODO: MOD generator
-            Folders = new Dictionary<Language, MODFolder>();
-            StreamWriter Descriptor = new StreamWriter(MODPath+"\\descriptor.mod");
+            Folders = new Dictionary<Language, ModFolder>();
+            Properties = new Dictionary<string, ModProperty>();
+            StreamWriter Descriptor = new StreamWriter(MODFolderPath + "\\descriptor.mod");
             Descriptor.WriteLine();
         }
 
-        public MODDataBase(string descriptorPath)
+        /// <summary>
+        /// Load the descriptor file and localisation files
+        /// </summary>
+        /// <param name="descriptorPath">The full path of descriptor file, include file name</param>
+        /// <exception cref="FileLoadException"></exception>
+        public ModDataBase(string descriptorPath)
         {
-            Folders = new Dictionary<Language, MODFolder>();
+            Folders = new Dictionary<Language, ModFolder>();
 
             //Find descriptor file            
             if (!File.Exists(descriptorPath))
                 throw new FileLoadException("MODDataBase error", new DescriptorMissingException());
-            MODPath = Path.GetDirectoryName(descriptorPath);
+            ModPath = Path.GetDirectoryName(descriptorPath);
             
             // Read MOD Name
             StreamReader reader = new StreamReader(descriptorPath);  
             string line = reader.ReadLine();
             int StartIndex = line.IndexOf('\"');
             int EndIndex = line.LastIndexOf('\"');
-            MODName = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
+            ModName = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
 
             // Read SupportVesrion
             SupportVesrion = "*.*.*";
@@ -73,10 +89,10 @@ namespace TranslateTools
             for (int i = 0; i < 8; i++)
             {
                 Language li = (Language)i;
-                string folderPath = MODPath + "\\localisation\\" + MODLanguage.GetFolderName(li);
+                string folderPath = ModPath + "\\localisation\\" + ModLanguage.GetFolderName(li);
                 if (Directory.Exists(folderPath))
                 {
-                    Folders.Add(li, new MODFolder(folderPath, this, false));
+                    Folders.Add(li, new ModFolder(folderPath, this, false));
                     Folders[li].IsOrigin = true;
                 }
             }
@@ -84,29 +100,43 @@ namespace TranslateTools
                 throw new FileLoadException("MODDataBase error", new DescriptorWithoutFoldersException());
         }
 
-        public MODFolder[] GetFolders()
+        /// <summary>
+        /// Get all MODFolder properties in an array.
+        /// </summary>
+        /// <returns>The array of MODFolders</returns>
+        public ModFolder[] GetFolders()
         {
-            Dictionary<Language, MODFolder>.ValueCollection folderValue = Folders.Values;
-            List<MODFolder> folderArray = new List<MODFolder>();
+            Dictionary<Language, ModFolder>.ValueCollection folderValue = Folders.Values;
+            List<ModFolder> folderArray = new List<ModFolder>();
             foreach (var folder in folderValue)
             {
                 folderArray.Add(folder);
             }
             return folderArray.ToArray();
         }
-        
+
+        /// <summary>
+        /// Add a Folder to database
+        /// </summary>
+        /// <param name="folderPath">The full path of Folder</param>
+        /// <param name="language">The language of localisation files in folder</param>
+        /// <param name="loadFiles">true: Load localisation file; false: only create folder property</param>
         public void AddFolder(string folderPath,Language language, bool loadFiles)
         {
-            MODFolder folder = new MODFolder(folderPath, this, loadFiles);
+            ModFolder folder = new ModFolder(folderPath, this, loadFiles);
             Folders.Add(language, folder);
         }
 
-        public void GenerateVersionFile(string versionFilePath)
+        /// <summary>
+        /// Generate a check file to save the currently mod data
+        /// </summary>
+        /// <param name="CheckFilePath">The full path of check file</param>
+        public void GenerateCheckingFile(string CheckFilePath)
         {
-            StreamWriter versionFile = new StreamWriter(versionFilePath);
-            versionFile.WriteLine(MODName);
+            StreamWriter versionFile = new StreamWriter(CheckFilePath);
+            versionFile.WriteLine(ModName);
             //versionFile.WriteLine(SupportVesrion);
-            Dictionary<Language, MODFolder>.ValueCollection folderValues = Folders.Values;
+            Dictionary<Language, ModFolder>.ValueCollection folderValues = Folders.Values;
             foreach (var folder in folderValues)
             {
                 if (!folder.IsOrigin)
@@ -114,13 +144,13 @@ namespace TranslateTools
                 versionFile.WriteLine($"<folder>");
                 versionFile.WriteLine(folder.Language.ToString());
                 versionFile.WriteLine(folder.ModifyTime.ToString());
-                Dictionary<string, MODFile>.ValueCollection fileValues = folder.Files.Values;
+                Dictionary<string, ModFile>.ValueCollection fileValues = folder.Files.Values;
                 foreach (var file in fileValues)
                 {
                     versionFile.WriteLine($"<file>");
                     versionFile.WriteLine(file.Name);
                     //versionFile.WriteLine("<properties>");
-                    Dictionary<string, MODProperty>.ValueCollection propertyValues = file.Properties.Values;
+                    Dictionary<string, ModProperty>.ValueCollection propertyValues = file.Properties.Values;
                     foreach (var property in propertyValues)
                     {
                         versionFile.WriteLine(property.GetLine());
@@ -133,55 +163,89 @@ namespace TranslateTools
             versionFile.Close();
         }
 
-        public bool LoadVersionFile(string filePath)
+        /// <summary>
+        /// Load checking file and save it as properties
+        /// </summary>
+        /// <param name="filePath">The full path of check file</param>
+        /// <returns><see langword="true"/>: Load file successed. <see langword="false"/>Load file failed.</returns>
+        public bool LoadCheckingFile(string filePath)
         {
-            VersionFolders = new Dictionary<Language, MODFolder>();
-            VersionProperties = new Dictionary<string, MODProperty>();
-
-            StreamReader versionFile = new StreamReader(filePath);
-            string line = versionFile.ReadLine();
-            MODFolder folder;
-            MODFile file;
-
-            if (line != MODName)
+            ModFolder folder;
+            ModFile file;
+            CheckingFolders = new Dictionary<Language, ModFolder>();
+            CheckingProperties = new Dictionary<string, ModProperty>();
+            if (File.Exists(filePath))
                 return false;
 
-            while (!versionFile.EndOfStream)
-            {
-                line = versionFile.ReadLine();
-                if (line == "<folder>")
-                {
-                    line = versionFile.ReadLine();
-                    Language l = (Language)Enum.Parse(typeof(Language), line, true);
-                    folder = new MODFolder(l, this);
-                    VersionFolders.Add(l, folder);
-                    while (!versionFile.EndOfStream)
-                    {
-                        line = versionFile.ReadLine();
-                        if (line == "<folder_end>")
-                            break;
-                        else if (line == "<file>")
-                        {
-                            line = versionFile.ReadLine();
-                            
-                            file = new MODFile(line);
-                            folder.AddFile(file);
+            StreamReader CheckingFile = new StreamReader(filePath);
+            string line = CheckingFile.ReadLine();
+            if (line != ModName)
+                return false;
 
-                            while (!versionFile.EndOfStream)
+            try
+            {
+                while (!CheckingFile.EndOfStream)
+                {
+                    line = CheckingFile.ReadLine();
+                    if (line == "<folder>")
+                    {
+                        line = CheckingFile.ReadLine();
+                        Language l = (Language)Enum.Parse(typeof(Language), line, true);
+                        folder = new ModFolder(l, this);
+                        CheckingFolders.Add(l, folder);
+                        while (!CheckingFile.EndOfStream)
+                        {
+                            line = CheckingFile.ReadLine();
+                            if (line == "<folder_end>")
+                                break;
+                            else if (line == "<file>")
                             {
-                                line = versionFile.ReadLine();
-                                if (line == "<file_end>")
-                                    break; 
-                                MODProperty property = new MODProperty(line, file);
-                                folder.Properties.Add(property.Name, property);
-                                
+                                line = CheckingFile.ReadLine();
+
+                                file = new ModFile(line);
+                                folder.AddFile(file);
+
+                                while (!CheckingFile.EndOfStream)
+                                {
+                                    line = CheckingFile.ReadLine();
+                                    if (line == "<file_end>")
+                                        break;
+                                    ModProperty property = new ModProperty(line, file);
+                                    folder.Properties.Add(property.Name, property);
+
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            return true;
+                checkDataExsist = true;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                CheckingFile.Close();
+            }
+        }
+
+        /// <summary>
+        /// Check localisation files were changed or not and tag the changed properties. 
+        /// </summary>
+        /// <returns><see langword="true"/>: The properties has been change.<see langword="false"/>: Nothing changed or check data doesn't exsist</returns>
+        public bool CheckingVersion()
+        {
+            if (!checkDataExsist) 
+                return false;
+
+            //TODO: Mod checking
+
+            bool versionChanged = false;
+
+            return versionChanged;
         }
     }
 }

@@ -8,11 +8,11 @@ namespace TranslateTools
 {
     public enum FileState { Unknow, Done, Modify, Error }
 
-    public class MODFile
+    public class ModFile
     {
-        public MODFolder Folder;
-        public List<MODProperty> Lines;
-        public Dictionary<string, MODProperty> Properties;
+        public ModFolder Folder;
+        public List<ModProperty> Lines;
+        public Dictionary<string, ModProperty> Properties;
         public string FilePath;
         public string Name;
         public Language Language
@@ -22,18 +22,18 @@ namespace TranslateTools
         public FileState State;
         public bool Exsit = true;
 
-        public MODFile(string FileName)
+        public ModFile(string FileName)
         {
             Name = FileName;
-            Lines = new List<MODProperty>();
-            Properties = new Dictionary<string, MODProperty>();
+            Lines = new List<ModProperty>();
+            Properties = new Dictionary<string, ModProperty>();
         }
 
-        public MODFile(string filePath, MODFolder parent)
+        public ModFile(string filePath, ModFolder parent)
         {
             // Initialize Dictionary
-            Lines = new List<MODProperty>();
-            Properties = new Dictionary<string, MODProperty>();
+            Lines = new List<ModProperty>();
+            Properties = new Dictionary<string, ModProperty>();
 
             // Set File Name
             int startIdx = filePath.LastIndexOf('\\') + 1;
@@ -45,7 +45,7 @@ namespace TranslateTools
             // Find File Language
             StreamReader fileReader = new StreamReader(filePath);
             string line = fileReader.ReadLine();
-            Language fileLanguage = MODLanguage.GetLanguage(line.Remove(line.Length - 1));
+            Language fileLanguage = ModLanguage.GetLanguage(line.Remove(line.Length - 1));
             if (fileLanguage != Folder.Language)
             {
                 fileReader.Close();
@@ -54,13 +54,13 @@ namespace TranslateTools
             }
 
             // Add Properties
-            MODProperty head = new MODProperty();
+            ModProperty head = new ModProperty();
             head.Text = line;
             Lines.Add(head); 
             while (!fileReader.EndOfStream)
             {
                 line = fileReader.ReadLine();
-                MODProperty p = new MODProperty(line, this);
+                ModProperty p = new ModProperty(line, this);
                 Lines.Add(p);
                 if (!p.IsNote)
                 {
@@ -79,10 +79,10 @@ namespace TranslateTools
             State = FileState.Done;
         }
 
-        public MODProperty[] GetProperties()
+        public ModProperty[] GetProperties()
         {
-            Dictionary<string, MODProperty>.ValueCollection propertyValues = Properties.Values;
-            List<MODProperty> propertiesArray = new List<MODProperty>();
+            Dictionary<string, ModProperty>.ValueCollection propertyValues = Properties.Values;
+            List<ModProperty> propertiesArray = new List<ModProperty>();
             foreach (var p in propertyValues)
             {
                 propertiesArray.Add(p);
@@ -90,15 +90,15 @@ namespace TranslateTools
             return propertiesArray.ToArray();
         }
 
-        public MODFile Clone(MODFolder folder)
+        public ModFile Clone(ModFolder folder)
         {
-            MODFile cloneFile = (MODFile)MemberwiseClone();
+            ModFile cloneFile = (ModFile)MemberwiseClone();
             cloneFile.Folder = folder;            
             cloneFile.Properties.Clear();
             cloneFile.Lines.Clear();
             for (int i = 0; i < Lines.Count; i++)
             {
-                MODProperty clonePropety = Lines[i].Clone(cloneFile);
+                ModProperty clonePropety = Lines[i].Clone(cloneFile);
                 cloneFile.Lines.Add(clonePropety);
                 if (!clonePropety.IsNote)
                     cloneFile.Properties.Add(clonePropety.Name, clonePropety);
@@ -114,7 +114,7 @@ namespace TranslateTools
         public void PathModify()
         {
             string folderPath = Folder.FolderPath;
-            FilePath = folderPath + '\\' + Name + '_' + MODLanguage.GetProperty(Language) + ".yml";
+            FilePath = folderPath + '\\' + Name + '_' + ModLanguage.GetProperty(Language) + ".yml";
         }
 
         public void FileGenerate()
@@ -129,19 +129,19 @@ namespace TranslateTools
             writer.Close();
         }
 
-        public void CopyLines(MODFile originalFile) 
+        public void CopyLines(ModFile originalFile) 
         {
-            MODProperty head = Lines[0];
+            ModProperty head = Lines[0];
             Lines.Clear();
             Lines.Add(head);
-            List<MODProperty> originalLins = originalFile.Lines;
+            List<ModProperty> originalLins = originalFile.Lines;
             for (int i = 1; i < originalLins.Count; i++)
             {
                 if (Properties.ContainsKey(originalLins[i].Name))
                     Lines.Add(Properties[originalLins[i].Name]);
                 else
                 {
-                    MODProperty copyProperty = originalLins[i].Clone(this);
+                    ModProperty copyProperty = originalLins[i].Clone(this);
                     Lines.Add(copyProperty);
                 }
             }

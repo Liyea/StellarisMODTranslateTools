@@ -7,7 +7,7 @@ namespace TranslateTools
 {
     public enum Language { BrazPor, English, French, German, Polish, Russian, SimpleChinese, Spanish, Unknow }
 
-    static class MODLanguage
+    static class ModLanguage
     {
     #region Static Function
         public static string GetFolderName(Language language)

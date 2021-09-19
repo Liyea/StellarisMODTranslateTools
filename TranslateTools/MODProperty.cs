@@ -7,7 +7,7 @@ namespace TranslateTools
 {
     public enum PropertySate { Unknow, New, Missing, Modify, Done, Remove, MoreThanOne, FileModify }
 
-    public class MODProperty
+    public class ModProperty
     {
         public string Name;
         public PropertySate State = PropertySate.Unknow;
@@ -16,20 +16,20 @@ namespace TranslateTools
             get => File.Language;
         }
         public bool IsNote = false;
-        public MODFile File;
+        public ModFile File;
         public string Text;
         
-        public MODProperty()
+        public ModProperty()
         {
             Name = "Language";
             Text = "";
             IsNote = true;
         }
 
-        public MODProperty(string line, string fileName)
+        public ModProperty(string line, string fileName)
         {
             IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
-            File = new MODFile(fileName);
+            File = new ModFile(fileName);
             if (IsNote)
             {
                 Text = line;
@@ -44,7 +44,7 @@ namespace TranslateTools
             }
         }
 
-        public MODProperty(string line, MODFile file)
+        public ModProperty(string line, ModFile file)
         {
             File = file;
             IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
@@ -62,7 +62,7 @@ namespace TranslateTools
             }            
         }
 
-        public PropertySate TextCheck(MODProperty other)
+        public PropertySate TextCheck(ModProperty other)
         {
             if (other.Name != Name)
                 return PropertySate.Unknow;
@@ -93,9 +93,9 @@ namespace TranslateTools
                 return Name + ":0 \"" + Text + '\"';
         }
 
-        public MODProperty Clone(MODFile parent)
+        public ModProperty Clone(ModFile parent)
         {
-            var cloneMODProperty = (MODProperty)MemberwiseClone();
+            var cloneMODProperty = (ModProperty)MemberwiseClone();
             cloneMODProperty.Name = (string)Name.Clone();
             cloneMODProperty.State = PropertySate.Unknow;
             cloneMODProperty.File = parent;

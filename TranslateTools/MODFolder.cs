@@ -6,37 +6,37 @@ using System.Text;
 
 namespace TranslateTools
 {
-    public class MODFolder
+    public class ModFolder
     {
         public string FolderPath;
-        public Dictionary<string, MODFile> Files;
-        public Dictionary<string, MODProperty> Properties;        
+        public Dictionary<string, ModFile> Files;
+        public Dictionary<string, ModProperty> Properties;        
         public Language Language;
         public string[] FilePathList;
         public DateTime ModifyTime;
-        public MODDataBase MOD;
+        public ModDataBase MOD;
         public bool IsOrigin = false;
 
-        public MODFolder()
+        public ModFolder()
         {
-            Files = new Dictionary<string, MODFile>();
-            Properties = new Dictionary<string, MODProperty>();
+            Files = new Dictionary<string, ModFile>();
+            Properties = new Dictionary<string, ModProperty>();
         }
 
-        public MODFolder(Language language, MODDataBase parent)
+        public ModFolder(Language language, ModDataBase parent)
         {
-            Files = new Dictionary<string, MODFile>();
-            Properties = new Dictionary<string, MODProperty>();
+            Files = new Dictionary<string, ModFile>();
+            Properties = new Dictionary<string, ModProperty>();
             Language = language;
             MOD = parent;
         }
 
-        public MODFolder(string folderPath, MODDataBase parent, bool loadFiles)
+        public ModFolder(string folderPath, ModDataBase parent, bool loadFiles)
         {
             FolderPath = folderPath;
-            Files = new Dictionary<string, MODFile>();
-            Properties = new Dictionary<string, MODProperty>();
-            Language = MODLanguage.GetFolderLanguage(folderPath);
+            Files = new Dictionary<string, ModFile>();
+            Properties = new Dictionary<string, ModProperty>();
+            Language = ModLanguage.GetFolderLanguage(folderPath);
             FilePathList = Directory.GetFiles(folderPath);
             MOD = parent;
             if (loadFiles)
@@ -53,9 +53,9 @@ namespace TranslateTools
                 DateTime fileTime = File.GetLastWriteTime(filePath);
                 if (ModifyTime.CompareTo(fileTime) > 0)
                     ModifyTime = fileTime;
-                MODFile file = new MODFile(filePath, this);
+                ModFile file = new ModFile(filePath, this);
                 Files.Add(file.Name, file);
-                Dictionary<string, MODProperty>.ValueCollection properties = file.Properties.Values;
+                Dictionary<string, ModProperty>.ValueCollection properties = file.Properties.Values;
                 foreach (var p in properties)
                 {
                     Properties.Add(p.Name, p);
@@ -63,10 +63,10 @@ namespace TranslateTools
             }
         }
 
-        public MODFile[] GetFiles()
+        public ModFile[] GetFiles()
         {
-            Dictionary<string, MODFile>.ValueCollection filesValue = Files.Values;
-            List<MODFile> filesArray = new List<MODFile>();
+            Dictionary<string, ModFile>.ValueCollection filesValue = Files.Values;
+            List<ModFile> filesArray = new List<ModFile>();
             foreach (var file in filesValue)
             {
                 filesArray.Add(file);
@@ -74,7 +74,7 @@ namespace TranslateTools
             return filesArray.ToArray();
         }
 
-        public void AddFile(MODFile file)
+        public void AddFile(ModFile file)
         {
             Files.Add(file.Name, file);
             file.Folder = this;
@@ -83,22 +83,22 @@ namespace TranslateTools
 
         public void AddFile(string fileName)
         {
-            MODFile file = new MODFile(fileName);            
+            ModFile file = new ModFile(fileName);            
             AddFile(file);
         }
 
-        public MODFolder Clone(MODDataBase database, Language language, string folderPath)
+        public ModFolder Clone(ModDataBase database, Language language, string folderPath)
         {
-            MODFolder cloneFolder = (MODFolder)MemberwiseClone();
+            ModFolder cloneFolder = (ModFolder)MemberwiseClone();
             cloneFolder.FolderPath = folderPath;
             cloneFolder.Files.Clear();
             cloneFolder.MOD = database;
             cloneFolder.Language = language;
             List<string> fileList = new List<string>();
-            Dictionary<string, MODFile>.ValueCollection files = Files.Values;
+            Dictionary<string, ModFile>.ValueCollection files = Files.Values;
             foreach (var f in files)
             {
-                MODFile cloneFile = f.Clone(cloneFolder);
+                ModFile cloneFile = f.Clone(cloneFolder);
                 cloneFile.PathModify();
                 cloneFolder.Files.Add(cloneFile.Name, cloneFile);
                 fileList.Add(cloneFile.FilePath);

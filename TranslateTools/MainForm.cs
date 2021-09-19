@@ -18,8 +18,8 @@ namespace TranslateTools
         private AddNodeToNode addNodeToNode;
         private AddNodeToTreeView addNodeToTreeView;
         private Thread FileLoading;
-        private MODDataBase MOD;
-        private MODDataBase MODTranslate;
+        private ModDataBase MOD;
+        private ModDataBase MODTranslate;
 
         public MainForm()
         {
@@ -36,7 +36,7 @@ namespace TranslateTools
             try
             {
                 // Load MOD descriptor and localisation folders
-                MOD = new MODDataBase(txtMODPath.Text);
+                MOD = new ModDataBase(txtMODPath.Text);
             }
             catch(FileLoadException flex)
             {                
@@ -48,7 +48,7 @@ namespace TranslateTools
             try
             {
                 // Load Translate MOD descriptor and localisation file
-                MODTranslate = new MODDataBase(txtMODTranslatePath.Text);
+                MODTranslate = new ModDataBase(txtMODTranslatePath.Text);
             }
             catch (FileLoadException flex)
             {
@@ -60,7 +60,7 @@ namespace TranslateTools
                     {
                         if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                         {
-                            MODTranslate = new MODDataBase(folderBrowserDialog.SelectedPath, MOD.MODName + "_Translate");
+                            MODTranslate = new ModDataBase(folderBrowserDialog.SelectedPath, MOD.ModName + "_Translate");
                         }
                         else
                             return;
@@ -75,10 +75,10 @@ namespace TranslateTools
 
             }
 
-            Text = "Stellaris MOD Translate Tools: " + MOD.MODName;
+            Text = "Stellaris MOD Translate Tools: " + MOD.ModName;
 
             FileLoading = new Thread(GenerateTree);
-            TreeNode MODNode = new TreeNode(MOD.MODName);
+            TreeNode MODNode = new TreeNode(MOD.ModName);
             trvMODTree.Nodes.Clear();
             trvMODTree.Nodes.Add(MODNode);            
             for (int i = 0; i < 8; i++)
@@ -147,7 +147,7 @@ namespace TranslateTools
                 if(MessageBox.Show("Version file couldn't be found.\n" +
                     "Do you want to create new one?", "Version File Missing", MessageBoxButtons.YesNo) == DialogResult.OK)
                 {
-                    MOD.GenerateVersionFile(txtMODCheckPath.Text);
+                    MOD.GenerateCheckingFile(txtMODCheckPath.Text);
                 }
             }
             else
@@ -155,45 +155,22 @@ namespace TranslateTools
 
             }
 
-            MODFolder[] MODFolders = MOD.GetFolders();
-            MODFile[] MODFiles = MODFolders[0].GetFiles();
+            ModFolder[] MODFolders = MOD.GetFolders();
+            ModFile[] MODFiles = MODFolders[0].GetFiles();
             foreach (var file in MODFiles)
             {
                 TreeNode FileNode = new TreeNode(file.Name);
                 FileNode.Name = file.Name;
                 Invoke(addNodeToTreeView, trvMODTree, FileNode);                
-                MODProperty[] MODProperties = file.GetProperties();
+                ModProperty[] MODProperties = file.GetProperties();
                 foreach (var property in MODProperties)
                 {
                     TreeNode propertyNode = new TreeNode(property.Name);
                     propertyNode.Name = property.Name;
                     Invoke(addNodeToNode, FileNode, propertyNode);
                 }
-            }            
-            //foreach (var folder in MODFolders)
-            //{
-            //    TreeNode FolderNode = new TreeNode(folder.Language.ToString() + "(Original)");
-            //    FolderNode.Name = folder.Language.ToString();
-            //    Invoke(addNodeToNode, MODNode, FolderNode);
-            //    FolderNode.Tag = folder;
-            //    folder.LoadFiles();
-            //    MODFile[] MODFiles = folder.GetFiles();
-            //    foreach (var file in MODFiles)
-            //    {
-            //        TreeNode FileNode = new TreeNode(file.Name);
-            //        FileNode.Name = file.Name;
-            //        Invoke(addNodeToNode, FolderNode, FileNode);
-            //        FileNode.Tag = file;
-            //        MODProperty[] MODProperties = file.GetProperties();
-            //        foreach (var property in MODProperties)
-            //        {
-            //            TreeNode propertyNode = new TreeNode(property.Name);
-            //            propertyNode.Name = property.Name;
-            //            Invoke(addNodeToNode, FileNode, propertyNode);
-            //            propertyNode.Tag = property;
-            //        }
-            //    }                
-            //}
+            }
+            . 
         }
 
         private void SelectNode(object sender, TreeNodeMouseClickEventArgs e)
