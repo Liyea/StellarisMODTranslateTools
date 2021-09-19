@@ -67,6 +67,7 @@ namespace TranslateTools
                     try
                     { 
                         Properties.Add(p.Name, p);
+                        Folder.Mod.Properties.Add(p.Name, p);
                     }
                     catch(ArgumentException ex)
                     {
@@ -120,7 +121,7 @@ namespace TranslateTools
         public void FileGenerate()
         {
             if (Folder.IsOrigin)
-                throw new AccessViolationException("You can generate original file");
+                throw new Exception("You cannot generate file in original folder");
             StreamWriter writer = new StreamWriter(FilePath);
             for (int i = 0; i < Lines.Count; i++)
             {

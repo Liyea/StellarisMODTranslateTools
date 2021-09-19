@@ -7,24 +7,58 @@ namespace TranslateTools
 {
     public class ModDataBase
     {
+        #region
+        /// <summary>
+        /// The Name of mod
+        /// </summary>
         public string ModName;
+        /// <summary>
+        /// The support version of mod
+        /// </summary>
         public string SupportVesrion;
+        /// <summary>
+        /// The folder path of mod
+        /// </summary>
         public string ModPath;
+        /// <summary>
+        /// The folders in localisation folder
+        /// </summary>
         public Dictionary<Language, ModFolder> Folders;
-        public Dictionary<Language, ModFolder> CheckingFolders;
+        /// <summary>
+        /// The localisation files
+        /// </summary>
+        public Dictionary<string, ModFile> Files;
+        /// <summary>
+        /// The properties of localisation
+        /// </summary>
         public Dictionary<string, ModProperty> Properties;
-        public Dictionary<string, ModProperty> CheckingProperties;
+        /// <summary>
+        /// The last update time of mod
+        /// </summary>
+        public DateTime ModLastChange;
+        /// <summary>
+        /// <see langword="true"/>: This is a translate mod. 
+        /// <see langword="false"/>: This is the original mod.
+        /// </summary>
+        public bool IsTranslateMod
+        {
+            get => isTranslateMod;
+        }
+
+        // The folder of checking version
+        private Dictionary<Language, ModFolder> CheckingFolders;
+        // The properties of checking version        
+        private Dictionary<string, ModProperty> CheckingProperties;
         private bool checkDataExsist = false;
-        public DateTime MODLastChange;
-        public Language OriginLanguage;
-        public Language TargetLanguage;
+        private bool isTranslateMod;
+        #endregion
 
         /// <summary>
         /// Create an empty database
         /// </summary>
         public ModDataBase()
         {
-            ModName = "New MOD";
+            ModName = "New Mod";
             SupportVesrion = "*.*.*";
             ModPath = "";
             Folders = new Dictionary<Language, ModFolder>();
@@ -32,16 +66,17 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// Generate a new MOD with descriptor and folders
+        /// Generate a new Mod with descriptor and folders
         /// </summary>
-        /// <param name="MODFolderPath">The full path of MOD folder</param>
-        /// <param name="MODName">The name of new MOD</param>
-        public ModDataBase(string MODFolderPath,string MODName)
+        /// <param name="modFolderPath">The full path of mod folder</param>
+        /// <param name="modName">The name of new mod</param>
+        public ModDataBase(string modFolderPath,string modName)
         {
-            // TODO: MOD generator
+            // TODO: Mod generator
+            ModName = modName;
             Folders = new Dictionary<Language, ModFolder>();
             Properties = new Dictionary<string, ModProperty>();
-            StreamWriter Descriptor = new StreamWriter(MODFolderPath + "\\descriptor.mod");
+            StreamWriter Descriptor = new StreamWriter(modFolderPath + "\\descriptor.mod");
             Descriptor.WriteLine();
         }
 
@@ -56,10 +91,10 @@ namespace TranslateTools
 
             //Find descriptor file            
             if (!File.Exists(descriptorPath))
-                throw new FileLoadException("MODDataBase error", new DescriptorMissingException());
+                throw new FileLoadException("ModDataBase error", new DescriptorMissingException());
             ModPath = Path.GetDirectoryName(descriptorPath);
             
-            // Read MOD Name
+            // Read Mod Name
             StreamReader reader = new StreamReader(descriptorPath);  
             string line = reader.ReadLine();
             int StartIndex = line.IndexOf('\"');
@@ -83,9 +118,9 @@ namespace TranslateTools
             reader.Close();
 
             if (!hasSupportedVersion)
-                throw new FileLoadException("MODDataBase error", new DescriptorInvalidException());
+                throw new FileLoadException("ModDataBase error", new DescriptorInvalidException());
 
-            // Check MOD Language folder
+            // Check Mod Language folder
             for (int i = 0; i < 8; i++)
             {
                 Language li = (Language)i;
@@ -97,13 +132,13 @@ namespace TranslateTools
                 }
             }
             if (Folders.Count == 0)
-                throw new FileLoadException("MODDataBase error", new DescriptorWithoutFoldersException());
+                throw new FileLoadException("ModDataBase error", new DescriptorWithoutFoldersException());
         }
 
         /// <summary>
-        /// Get all MODFolder properties in an array.
+        /// Get all ModFolder properties in an array.
         /// </summary>
-        /// <returns>The array of MODFolders</returns>
+        /// <returns>The array of ModFolders</returns>
         public ModFolder[] GetFolders()
         {
             Dictionary<Language, ModFolder>.ValueCollection folderValue = Folders.Values;

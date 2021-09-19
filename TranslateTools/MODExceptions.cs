@@ -8,7 +8,7 @@ namespace TranslateTools
 {
     public class DescriptorMissingException: Exception
     {
-        public DescriptorMissingException():base("The Descriptor file of MOD doesn't exist.")
+        public DescriptorMissingException():base("The Descriptor file of mod doesn't exist.")
         {
             
         }
@@ -16,7 +16,7 @@ namespace TranslateTools
 
     public class DescriptorInvalidException : Exception
     {
-        public DescriptorInvalidException ():base("This is not a descriptor file of Stellaris MOD.")
+        public DescriptorInvalidException ():base("This is not a descriptor file of Stellaris mod.")
         {
 
         }
@@ -25,7 +25,7 @@ namespace TranslateTools
 
     public class DescriptorWithoutFoldersException : Exception
     {
-        public DescriptorWithoutFoldersException ():base("This MOD doesn't have localisation files.")
+        public DescriptorWithoutFoldersException ():base("This mod doesn't have localisation files.")
         {
 
         }

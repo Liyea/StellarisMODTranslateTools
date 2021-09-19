@@ -18,8 +18,8 @@ namespace TranslateTools
         private AddNodeToNode addNodeToNode;
         private AddNodeToTreeView addNodeToTreeView;
         private Thread FileLoading;
-        private ModDataBase MOD;
-        private ModDataBase MODTranslate;
+        private ModDataBase Mod;
+        private ModDataBase ModTranslate;
 
         public MainForm()
         {
@@ -35,32 +35,32 @@ namespace TranslateTools
         {
             try
             {
-                // Load MOD descriptor and localisation folders
-                MOD = new ModDataBase(txtMODPath.Text);
+                // Load Mod descriptor and localisation folders
+                Mod = new ModDataBase(txtModPath.Text);
             }
             catch(FileLoadException flex)
             {                
                 // Show error message
-                MessageBox.Show(flex.Message,"Original MOD files loading failed",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(flex.Message,"Original Mod files loading failed",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
             }
 
             try
             {
-                // Load Translate MOD descriptor and localisation file
-                MODTranslate = new ModDataBase(txtMODTranslatePath.Text);
+                // Load Translate Mod descriptor and localisation file
+                ModTranslate = new ModDataBase(txtModTranslatePath.Text);
             }
             catch (FileLoadException flex)
             {
                 // Show error message
                 if (flex.InnerException is DescriptorWithoutFoldersException)
                 {
-                    if( MessageBox.Show(flex.InnerException.Message+"\n Do you want create a new MOD?", 
-                        "Translate MOD files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if( MessageBox.Show(flex.InnerException.Message+"\n Do you want create a new Mod?", 
+                        "Translate Mod files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                         {
-                            MODTranslate = new ModDataBase(folderBrowserDialog.SelectedPath, MOD.ModName + "_Translate");
+                            ModTranslate = new ModDataBase(folderBrowserDialog.SelectedPath, Mod.ModName + "_Translate");
                         }
                         else
                             return;
@@ -69,22 +69,23 @@ namespace TranslateTools
                 }
                 else
                 {
-                    MessageBox.Show(flex.InnerException.Message, "Translate MOD files loading failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(flex.InnerException.Message, "Translate Mod files loading failed",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
             }
 
-            Text = "Stellaris MOD Translate Tools: " + MOD.ModName;
+            Text = "Stellaris Mod Translate Tools: " + Mod.ModName;
 
             FileLoading = new Thread(GenerateTree);
-            TreeNode MODNode = new TreeNode(MOD.ModName);
-            trvMODTree.Nodes.Clear();
-            trvMODTree.Nodes.Add(MODNode);            
+            TreeNode ModNode = new TreeNode(Mod.ModName);
+            trvModTree.Nodes.Clear();
+            trvModTree.Nodes.Add(ModNode);            
             for (int i = 0; i < 8; i++)
             {
                 Language l = (Language)i;
-                if (MOD.Folders.ContainsKey(l))
+                if (Mod.Folders.ContainsKey(l))
                 {
                     cboxOriginalLanguage.Items.Add(l.ToString());
                 }
@@ -100,33 +101,33 @@ namespace TranslateTools
 
         private void btnOriginalPathBrowse_Click(object sender, EventArgs e)
         {
-            ofdDescriptor.Title = "Select Original MOD Descriptor";
+            ofdDescriptor.Title = "Select Original Mod Descriptor";
             if (ofdDescriptor.ShowDialog() == DialogResult.OK)
-                txtMODPath.Text = ofdDescriptor.FileName;
+                txtModPath.Text = ofdDescriptor.FileName;
         }
 
         private void btnTargetPathBrowse_Click(object sender, EventArgs e)
         {
-            ofdDescriptor.Title = "Select Translate MOD Descriptor";
+            ofdDescriptor.Title = "Select Translate Mod Descriptor";
             if (ofdDescriptor.ShowDialog() == DialogResult.OK)
-                txtMODTranslatePath.Text = ofdDescriptor.FileName;
+                txtModTranslatePath.Text = ofdDescriptor.FileName;
         }
 
-        private void btnOldVerBrowse_Click(object sender, EventArgs e)
+        private void btnCheckingFileBrowse_Click(object sender, EventArgs e)
         {
-            string path = Path.GetExtension(txtMODCheckPath.Text);            
+            string path = Path.GetExtension(txtModCheckPath.Text);            
             if (path == ".smodc")
             {
-                path = Path.GetDirectoryName(txtMODCheckPath.Text);
+                path = Path.GetDirectoryName(txtModCheckPath.Text);
             }
             else
-                path = txtMODCheckPath.Text;
+                path = txtModCheckPath.Text;
 
             if (Directory.Exists(path))
                 sfdSMOF.InitialDirectory = path;
             
             if (sfdSMOF.ShowDialog() == DialogResult.OK)
-                txtMODCheckPath.Text = sfdSMOF.FileName;
+                txtModCheckPath.Text = sfdSMOF.FileName;
         }
         #endregion
         
@@ -142,12 +143,12 @@ namespace TranslateTools
 
         private void GenerateTree()
         {
-            if (!File.Exists(txtMODCheckPath.Text))
+            if (!File.Exists(txtModCheckPath.Text))
             {
                 if(MessageBox.Show("Version file couldn't be found.\n" +
                     "Do you want to create new one?", "Version File Missing", MessageBoxButtons.YesNo) == DialogResult.OK)
                 {
-                    MOD.GenerateCheckingFile(txtMODCheckPath.Text);
+                    Mod.GenerateCheckingFile(txtModCheckPath.Text);
                 }
             }
             else
@@ -155,22 +156,21 @@ namespace TranslateTools
 
             }
 
-            ModFolder[] MODFolders = MOD.GetFolders();
-            ModFile[] MODFiles = MODFolders[0].GetFiles();
-            foreach (var file in MODFiles)
+            ModFolder[] ModFolders = Mod.GetFolders();
+            ModFile[] ModFiles = ModFolders[0].GetFiles();
+            foreach (var file in ModFiles)
             {
                 TreeNode FileNode = new TreeNode(file.Name);
                 FileNode.Name = file.Name;
-                Invoke(addNodeToTreeView, trvMODTree, FileNode);                
-                ModProperty[] MODProperties = file.GetProperties();
-                foreach (var property in MODProperties)
+                Invoke(addNodeToTreeView, trvModTree, FileNode);                
+                ModProperty[] ModProperties = file.GetProperties();
+                foreach (var property in ModProperties)
                 {
                     TreeNode propertyNode = new TreeNode(property.Name);
                     propertyNode.Name = property.Name;
                     Invoke(addNodeToNode, FileNode, propertyNode);
                 }
-            }
-            . 
+            }            
         }
 
         private void SelectNode(object sender, TreeNodeMouseClickEventArgs e)

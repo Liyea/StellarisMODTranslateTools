@@ -100,7 +100,7 @@ namespace TranslateTools
             return folderPath + "\\" + GetProperty(language) + "\\" + fileName + "_" + GetProperty(language) + ".yml";
         }
 
-        public static string GetMODFolder(string path)
+        public static string GetModFolder(string path)
         {
             int idx = path.IndexOf("\\localisation");
             return path.Substring(0, idx - 1);

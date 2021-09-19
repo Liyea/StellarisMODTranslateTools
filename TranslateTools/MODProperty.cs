@@ -9,26 +9,59 @@ namespace TranslateTools
 
     public class ModProperty
     {
+        #region
+        /// <summary>
+        /// The name of property
+        /// </summary>
         public string Name;
+        /// <summary>
+        /// The state of this property
+        /// </summary>
         public PropertySate State = PropertySate.Unknow;
+        /// <summary>
+        /// The language of this proerty
+        /// </summary>
         public Language Language
         {
             get => File.Language;
         }
-        public bool IsNote = false;
+        /// <summary>
+        /// <see langword="true"/> This is a line of note
+        /// </summary>
+        public bool IsNote
+        {
+            get => isNote;
+        }
+        /// <summary>
+        /// The file this proprety belong
+        /// </summary>
         public ModFile File;
+        /// <summary>
+        /// The text of proprety
+        /// </summary>
         public string Text;
         
+        private bool isNote = false;
+        #endregion
+
+        /// <summary>
+        /// Create a empty property
+        /// </summary>
         public ModProperty()
         {
             Name = "Language";
             Text = "";
-            IsNote = true;
+            isNote = true;
         }
 
+        /// <summary>
+        /// Record the text of property and create a ModFile class
+        /// </summary>
+        /// <param name="line">The recorded text of property</param>
+        /// <param name="fileName">The name of created file</param>
         public ModProperty(string line, string fileName)
         {
-            IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
+            isNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
             File = new ModFile(fileName);
             if (IsNote)
             {
@@ -44,10 +77,15 @@ namespace TranslateTools
             }
         }
 
+        /// <summary>
+        /// Record a property and the file that property belong to
+        /// </summary>
+        /// <param name="line">The recorded text of property</param>
+        /// <param name="file">The file this property belong to</param>
         public ModProperty(string line, ModFile file)
         {
             File = file;
-            IsNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
+            isNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
             if (IsNote)
             {
                 Text = line;
@@ -62,6 +100,11 @@ namespace TranslateTools
             }            
         }
 
+        /// <summary>
+        /// Compare this property and another one
+        /// </summary>
+        /// <param name="other">The property compared</param>
+        /// <returns>The result of compare</returns>
         public PropertySate TextCheck(ModProperty other)
         {
             if (other.Name != Name)
@@ -76,23 +119,24 @@ namespace TranslateTools
                 return PropertySate.Modify;
         }
 
-        //public PropertySate StateCheck(MODProperty target)
-        //{            
-        //    if (Text == Text[originLanguage])
-        //        State = PropertySate.Done;
-        //    else
-        //        State = PropertySate.Modify;
-        //    return State;
-        //}
-
+        /// <summary>
+        /// Generate full text of property, include property name and text
+        /// </summary>
+        /// <returns>The full text of property</returns>
         public string GetLine()
         {
             if (IsNote)
                 return Text;
             else
-                return Name + ":0 \"" + Text + '\"';
+                return $"{Name}:0 \"{Text}\"";
+            
         }
 
+        /// <summary>
+        /// Clone the property to another file
+        /// </summary>
+        /// <param name="parent">The file new property belong to</param>
+        /// <returns>The cloned property</returns>
         public ModProperty Clone(ModFile parent)
         {
             var cloneMODProperty = (ModProperty)MemberwiseClone();
