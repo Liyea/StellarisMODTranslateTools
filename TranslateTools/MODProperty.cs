@@ -133,10 +133,10 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// Clone the property to another file
+        /// Clone the property to another <see cref="ModFile"/>
         /// </summary>
         /// <param name="parent">The file new property belong to</param>
-        /// <returns>The cloned property</returns>
+        /// <returns>The cloned <see cref="ModProperty"/></returns>
         public ModProperty Clone(ModFile parent)
         {
             var cloneMODProperty = (ModProperty)MemberwiseClone();

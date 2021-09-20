@@ -10,6 +10,7 @@ namespace TranslateTools
 
     public class ModFile
     {
+        #region
         public ModFolder Folder;
         public List<ModProperty> Lines;
         public Dictionary<string, ModProperty> Properties;
@@ -17,11 +18,16 @@ namespace TranslateTools
         public string Name;
         public Language Language
         {
-            get => Folder.Language;
+            get => Folder.FolderLanguage;
         }
         public FileState State;
         public bool Exsit = true;
+        #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="FileName"></param>
         public ModFile(string FileName)
         {
             Name = FileName;
@@ -29,6 +35,11 @@ namespace TranslateTools
             Properties = new Dictionary<string, ModProperty>();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="parent"></param>
         public ModFile(string filePath, ModFolder parent)
         {
             // Initialize Dictionary
@@ -46,12 +57,13 @@ namespace TranslateTools
             StreamReader fileReader = new StreamReader(filePath);
             string line = fileReader.ReadLine();
             Language fileLanguage = ModLanguage.GetLanguage(line.Remove(line.Length - 1));
-            if (fileLanguage != Folder.Language)
+            if (fileLanguage != Folder.FolderLanguage)
             {
                 fileReader.Close();
                 State = FileState.Error;
                 return;
             }
+            Folder.Mod.Files.Add(Name, this);
 
             // Add Properties
             ModProperty head = new ModProperty();
@@ -80,6 +92,10 @@ namespace TranslateTools
             State = FileState.Done;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public ModProperty[] GetProperties()
         {
             Dictionary<string, ModProperty>.ValueCollection propertyValues = Properties.Values;
@@ -91,6 +107,11 @@ namespace TranslateTools
             return propertiesArray.ToArray();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
         public ModFile Clone(ModFolder folder)
         {
             ModFile cloneFile = (ModFile)MemberwiseClone();
@@ -112,16 +133,23 @@ namespace TranslateTools
             return cloneFile;
         }
 
-        public void PathModify()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="folderPath"></param>
+        public void PathGenerate()
         {
             string folderPath = Folder.FolderPath;
             FilePath = folderPath + '\\' + Name + '_' + ModLanguage.GetProperty(Language) + ".yml";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void FileGenerate()
         {
-            if (Folder.IsOrigin)
-                throw new Exception("You cannot generate file in original folder");
+            if (!Folder.Mod.IsTranslateMod)
+                throw new Exception("You cannot generate file in original mod folder");
             StreamWriter writer = new StreamWriter(FilePath);
             for (int i = 0; i < Lines.Count; i++)
             {
@@ -130,6 +158,10 @@ namespace TranslateTools
             writer.Close();
         }
 
+        /// <summary>
+        /// Copy <see cref="ModProperty"/> from another <see cref="ModFile"/>
+        /// </summary>
+        /// <param name="originalFile">The source <see cref="ModFile"/> of properties</param>
         public void CopyLines(ModFile originalFile) 
         {
             ModProperty head = Lines[0];

@@ -31,50 +31,19 @@ namespace TranslateTools
         }
 
         #region ButtonClick
-        private void btnTargetCheck_Click(object sender, EventArgs e)
+        private void btnModLoad_Click(object sender, EventArgs e)
         {
             try
             {
                 // Load Mod descriptor and localisation folders
-                Mod = new ModDataBase(txtModPath.Text);
+                Mod = new ModDataBase(txtModPath.Text, true, false);
             }
             catch(FileLoadException flex)
             {                
                 // Show error message
                 MessageBox.Show(flex.Message,"Original Mod files loading failed",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 return;
-            }
-
-            try
-            {
-                // Load Translate Mod descriptor and localisation file
-                ModTranslate = new ModDataBase(txtModTranslatePath.Text);
-            }
-            catch (FileLoadException flex)
-            {
-                // Show error message
-                if (flex.InnerException is DescriptorWithoutFoldersException)
-                {
-                    if( MessageBox.Show(flex.InnerException.Message+"\n Do you want create a new Mod?", 
-                        "Translate Mod files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    {
-                        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            ModTranslate = new ModDataBase(folderBrowserDialog.SelectedPath, Mod.ModName + "_Translate");
-                        }
-                        else
-                            return;
-                    }
-                    
-                }
-                else
-                {
-                    MessageBox.Show(flex.InnerException.Message, "Translate Mod files loading failed",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-            }
+            }           
 
             Text = "Stellaris Mod Translate Tools: " + Mod.ModName;
 
@@ -143,9 +112,9 @@ namespace TranslateTools
 
         private void GenerateTree()
         {
-            if (!File.Exists(txtModCheckPath.Text))
+            if (!File.Exists(txtModCheckPath.Text) && chbGenerateChecking.Checked)
             {
-                if(MessageBox.Show("Version file couldn't be found.\n" +
+                if(MessageBox.Show("Checking file couldn't be found.\n" +
                     "Do you want to create new one?", "Version File Missing", MessageBoxButtons.YesNo) == DialogResult.OK)
                 {
                     Mod.GenerateCheckingFile(txtModCheckPath.Text);
@@ -176,6 +145,39 @@ namespace TranslateTools
         private void SelectNode(object sender, TreeNodeMouseClickEventArgs e)
         {
 
+        }
+
+        private void btnTranslateLoad_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Load Translate Mod descriptor and localisation file
+                ModTranslate = new ModDataBase(txtModTranslatePath.Text, true, true);
+            }
+            catch (FileLoadException flex)
+            {
+                // Show error message
+                if (flex.InnerException is DescriptorWithoutFoldersException)
+                {
+                    if (MessageBox.Show(flex.InnerException.Message + "\n Do you want create a new Mod?",
+                        "Translate Mod files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            ModTranslate = new ModDataBase(folderBrowserDialog.SelectedPath, Mod.ModName + "_Translate");
+                        }
+                        else
+                            return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(flex.InnerException.Message, "Translate Mod files loading failed",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+            }
         }
     }
 }

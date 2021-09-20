@@ -40,17 +40,13 @@ namespace TranslateTools
         /// <see langword="true"/>: This is a translate mod. 
         /// <see langword="false"/>: This is the original mod.
         /// </summary>
-        public bool IsTranslateMod
-        {
-            get => isTranslateMod;
-        }
+        public bool IsTranslateMod { get; }
 
         // The folder of checking version
         private Dictionary<Language, ModFolder> CheckingFolders;
         // The properties of checking version        
         private Dictionary<string, ModProperty> CheckingProperties;
         private bool checkDataExsist = false;
-        private bool isTranslateMod;
         #endregion
 
         /// <summary>
@@ -63,6 +59,7 @@ namespace TranslateTools
             ModPath = "";
             Folders = new Dictionary<Language, ModFolder>();
             Properties = new Dictionary<string, ModProperty>();
+            IsTranslateMod = true;
         }
 
         /// <summary>
@@ -78,16 +75,21 @@ namespace TranslateTools
             Properties = new Dictionary<string, ModProperty>();
             StreamWriter Descriptor = new StreamWriter(modFolderPath + "\\descriptor.mod");
             Descriptor.WriteLine();
+            IsTranslateMod = true;
         }
 
         /// <summary>
         /// Load the descriptor file and localisation files
         /// </summary>
         /// <param name="descriptorPath">The full path of descriptor file, include file name</param>
+        /// <param name="loadFile"><see langword="true"/>: Load files during construct ModDataBase; <see langword="false"/>: Only create folders properties</param>
+        /// <param name="isTranslate"><see langword="true"/>: This mod is a tranlate mod; <see langword="false"/>: This mod is the original mod</param>
         /// <exception cref="FileLoadException"></exception>
-        public ModDataBase(string descriptorPath)
+        public ModDataBase(string descriptorPath, bool loadFile, bool isTranslate)
         {
             Folders = new Dictionary<Language, ModFolder>();
+            Files = new Dictionary<string, ModFile>();
+            Properties = new Dictionary<string, ModProperty>();
 
             //Find descriptor file            
             if (!File.Exists(descriptorPath))
@@ -127,16 +129,18 @@ namespace TranslateTools
                 string folderPath = ModPath + "\\localisation\\" + ModLanguage.GetFolderName(li);
                 if (Directory.Exists(folderPath))
                 {
-                    Folders.Add(li, new ModFolder(folderPath, this, false));
+                    Folders.Add(li, new ModFolder(folderPath, this, loadFile));
                     Folders[li].IsOrigin = true;
                 }
             }
             if (Folders.Count == 0)
                 throw new FileLoadException("ModDataBase error", new DescriptorWithoutFoldersException());
+
+            IsTranslateMod = isTranslate;
         }
 
         /// <summary>
-        /// Get all ModFolder properties in an array.
+        /// Get all <see cref="ModFolder"/> properties as an array.
         /// </summary>
         /// <returns>The array of ModFolders</returns>
         public ModFolder[] GetFolders()
@@ -151,11 +155,11 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// Add a Folder to database
+        /// Add a <see cref="ModFolder"/> to database
         /// </summary>
         /// <param name="folderPath">The full path of Folder</param>
-        /// <param name="language">The language of localisation files in folder</param>
-        /// <param name="loadFiles">true: Load localisation file; false: only create folder property</param>
+        /// <param name="language">The <see cref="Language"/> of localisation files in folder</param>
+        /// <param name="loadFiles"><see langword="true"/>: Load localisation file; <see langword="false"/>: only create folder property</param>
         public void AddFolder(string folderPath,Language language, bool loadFiles)
         {
             ModFolder folder = new ModFolder(folderPath, this, loadFiles);
@@ -177,7 +181,7 @@ namespace TranslateTools
                 if (!folder.IsOrigin)
                     continue;
                 versionFile.WriteLine($"<folder>");
-                versionFile.WriteLine(folder.Language.ToString());
+                versionFile.WriteLine(folder.FolderLanguage.ToString());
                 versionFile.WriteLine(folder.ModifyTime.ToString());
                 Dictionary<string, ModFile>.ValueCollection fileValues = folder.Files.Values;
                 foreach (var file in fileValues)

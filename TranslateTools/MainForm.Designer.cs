@@ -32,16 +32,15 @@ namespace TranslateTools
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabCheck = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnTranslateLoad = new System.Windows.Forms.Button();
             this.btnGenerate = new System.Windows.Forms.Button();
-            this.chboxGenerate = new System.Windows.Forms.CheckBox();
+            this.chbGenerateChecking = new System.Windows.Forms.CheckBox();
             this.btnLoadCheck = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.cboxTargetLanguage = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.cboxOriginalLanguage = new System.Windows.Forms.ComboBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.trvModTree = new System.Windows.Forms.TreeView();
             this.btnModLoad = new System.Windows.Forms.Button();
             this.tabTranslate = new System.Windows.Forms.TabPage();
             this.tabSetting = new System.Windows.Forms.TabPage();
@@ -57,6 +56,7 @@ namespace TranslateTools
             this.sfdSMOF = new System.Windows.Forms.SaveFileDialog();
             this.ofdDescriptor = new System.Windows.Forms.OpenFileDialog();
             this.sfdDescriptor = new System.Windows.Forms.SaveFileDialog();
+            this.trvModTree = new System.Windows.Forms.TreeView();
             this.tabControl1.SuspendLayout();
             this.tabCheck.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -83,9 +83,9 @@ namespace TranslateTools
             // 
             // tabCheck
             // 
-            this.tabCheck.Controls.Add(this.button1);
+            this.tabCheck.Controls.Add(this.btnTranslateLoad);
             this.tabCheck.Controls.Add(this.btnGenerate);
-            this.tabCheck.Controls.Add(this.chboxGenerate);
+            this.tabCheck.Controls.Add(this.chbGenerateChecking);
             this.tabCheck.Controls.Add(this.btnLoadCheck);
             this.tabCheck.Controls.Add(this.label4);
             this.tabCheck.Controls.Add(this.cboxTargetLanguage);
@@ -101,34 +101,35 @@ namespace TranslateTools
             this.tabCheck.Text = "File Check";
             this.tabCheck.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btnTranslateLoad
             // 
-            this.button1.Location = new System.Drawing.Point(8, 35);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(109, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Load Translate File ";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnTranslateLoad.Location = new System.Drawing.Point(8, 35);
+            this.btnTranslateLoad.Name = "btnTranslateLoad";
+            this.btnTranslateLoad.Size = new System.Drawing.Size(109, 23);
+            this.btnTranslateLoad.TabIndex = 10;
+            this.btnTranslateLoad.Text = "Load Translate File ";
+            this.btnTranslateLoad.UseVisualStyleBackColor = true;
+            this.btnTranslateLoad.Click += new System.EventHandler(this.btnTranslateLoad_Click);
             // 
             // btnGenerate
             // 
             this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGenerate.Location = new System.Drawing.Point(688, 30);
+            this.btnGenerate.Location = new System.Drawing.Point(685, 30);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(148, 23);
             this.btnGenerate.TabIndex = 9;
             this.btnGenerate.Text = "Generate Target Language";
             this.btnGenerate.UseVisualStyleBackColor = true;
             // 
-            // chboxGenerate
+            // chbGenerateChecking
             // 
-            this.chboxGenerate.AutoSize = true;
-            this.chboxGenerate.Location = new System.Drawing.Point(238, 10);
-            this.chboxGenerate.Name = "chboxGenerate";
-            this.chboxGenerate.Size = new System.Drawing.Size(124, 16);
-            this.chboxGenerate.TabIndex = 8;
-            this.chboxGenerate.Text = "Generate Version File";
-            this.chboxGenerate.UseVisualStyleBackColor = true;
+            this.chbGenerateChecking.AutoSize = true;
+            this.chbGenerateChecking.Location = new System.Drawing.Point(238, 10);
+            this.chbGenerateChecking.Name = "chbGenerateChecking";
+            this.chbGenerateChecking.Size = new System.Drawing.Size(118, 16);
+            this.chbGenerateChecking.TabIndex = 8;
+            this.chbGenerateChecking.Text = "Generate Check File";
+            this.chbGenerateChecking.UseVisualStyleBackColor = true;
             // 
             // btnLoadCheck
             // 
@@ -144,11 +145,11 @@ namespace TranslateTools
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(851, 35);
+            this.label4.Location = new System.Drawing.Point(839, 35);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(90, 12);
+            this.label4.Size = new System.Drawing.Size(102, 12);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Target Language: ";
+            this.label4.Text = "Translate Language: ";
             // 
             // cboxTargetLanguage
             // 
@@ -213,16 +214,7 @@ namespace TranslateTools
             this.splitContainer1.SplitterDistance = 358;
             this.splitContainer1.TabIndex = 2;
             // 
-            // trvMODTree
-            // 
-            this.trvModTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.trvModTree.Location = new System.Drawing.Point(0, 0);
-            this.trvModTree.Name = "trvModTree";
-            this.trvModTree.Size = new System.Drawing.Size(358, 474);
-            this.trvModTree.TabIndex = 1;
-            this.trvModTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.SelectNode);
-            // 
-            // btnMODLoad
+            // btnModLoad
             // 
             this.btnModLoad.Location = new System.Drawing.Point(8, 6);
             this.btnModLoad.Name = "btnModLoad";
@@ -230,7 +222,7 @@ namespace TranslateTools
             this.btnModLoad.TabIndex = 0;
             this.btnModLoad.Text = "Load Mod File ";
             this.btnModLoad.UseVisualStyleBackColor = true;
-            this.btnModLoad.Click += new System.EventHandler(this.btnTargetCheck_Click);
+            this.btnModLoad.Click += new System.EventHandler(this.btnModLoad_Click);
             // 
             // tabTranslate
             // 
@@ -279,7 +271,7 @@ namespace TranslateTools
             this.label5.TabIndex = 16;
             this.label5.Text = "Translate Mod Descriptor file:";
             // 
-            // txtMODTranslatePath
+            // txtModTranslatePath
             // 
             this.txtModTranslatePath.Location = new System.Drawing.Point(24, 145);
             this.txtModTranslatePath.Name = "txtModTranslatePath";
@@ -306,7 +298,7 @@ namespace TranslateTools
             this.label2.TabIndex = 13;
             this.label2.Text = "Mod Checking File Path:";
             // 
-            // txtMODCheckPath
+            // txtModCheckPath
             // 
             this.txtModCheckPath.Location = new System.Drawing.Point(24, 92);
             this.txtModCheckPath.Name = "txtModCheckPath";
@@ -333,7 +325,7 @@ namespace TranslateTools
             this.label1.TabIndex = 10;
             this.label1.Text = "Original Mod Descriptor file:";
             // 
-            // txtMODPath
+            // txtModPath
             // 
             this.txtModPath.Location = new System.Drawing.Point(24, 39);
             this.txtModPath.Name = "txtModPath";
@@ -361,6 +353,15 @@ namespace TranslateTools
             this.sfdDescriptor.FileName = "ModCheck";
             this.sfdDescriptor.Filter = "Stellaris mod file|*.mod";
             this.sfdDescriptor.Title = "Save Check File";
+            // 
+            // trvModTree
+            // 
+            this.trvModTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.trvModTree.Location = new System.Drawing.Point(0, 0);
+            this.trvModTree.Name = "trvModTree";
+            this.trvModTree.Size = new System.Drawing.Size(358, 474);
+            this.trvModTree.TabIndex = 1;
+            this.trvModTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.SelectNode);
             // 
             // MainForm
             // 
@@ -398,7 +399,6 @@ namespace TranslateTools
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtModCheckPath;
         private System.Windows.Forms.SaveFileDialog sfdSMOF;
-        private System.Windows.Forms.TreeView trvModTree;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox cboxTargetLanguage;
@@ -406,13 +406,14 @@ namespace TranslateTools
         private System.Windows.Forms.ComboBox cboxOriginalLanguage;
         private System.Windows.Forms.Button btnLoadCheck;
         private System.Windows.Forms.Button btnGenerate;
-        private System.Windows.Forms.CheckBox chboxGenerate;
+        private System.Windows.Forms.CheckBox chbGenerateChecking;
         private System.Windows.Forms.OpenFileDialog ofdDescriptor;
         private System.Windows.Forms.Button btnTargetPathBrowse;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtModTranslatePath;
         private System.Windows.Forms.SaveFileDialog sfdDescriptor;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnTranslateLoad;
+        private System.Windows.Forms.TreeView trvModTree;
     }
 }
 
