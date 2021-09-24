@@ -37,6 +37,8 @@ namespace TranslateTools
             {
                 // Load Mod descriptor and localisation folders
                 Mod = new ModDataBase(txtModPath.Text, true, false);
+                var folder = Mod.GetFolders();
+                ModLanguage.GetFolderLanguage(folder[0].FolderPath);
             }
             catch(FileLoadException flex)
             {                
@@ -157,7 +159,7 @@ namespace TranslateTools
             catch (FileLoadException flex)
             {
                 // Show error message
-                if (flex.InnerException is DescriptorWithoutFoldersException)
+                if (flex.InnerException is LocalisationMissingException)
                 {
                     if (MessageBox.Show(flex.InnerException.Message + "\n Do you want create a new Mod?",
                         "Translate Mod files loading failed", MessageBoxButtons.YesNo) == DialogResult.Yes)

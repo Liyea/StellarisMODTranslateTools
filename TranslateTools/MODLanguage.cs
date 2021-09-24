@@ -1,15 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace TranslateTools
 {
-    public enum Language { BrazPor, English, French, German, Polish, Russian, SimpleChinese, Spanish, Unknow }
+    /// <summary>
+    /// The enumerate of Stellaris Mod language
+    /// </summary>
+    public enum Language { Unknow, BrazPor, English, French, German, Polish, Russian, SimpleChinese, Spanish }
 
     static class ModLanguage
     {
-    #region Static Function
+        #region Static Function
+        /// <summary>
+        /// Get the language folder name string from <see cref="Language"/>
+        /// </summary>
+        /// <param name="language">The <see cref="Language"/> of <see cref="ModFolder"/></param>
+        /// <returns>The language folder name string of <see cref="Language"/></returns>
         public static string GetFolderName(Language language)
         {
             switch (language)
@@ -31,10 +36,15 @@ namespace TranslateTools
                 case Language.Spanish:
                     return "spanish";
                 default:
-                    return "";
+                    return "unknow";
             }
         }
 
+        /// <summary>
+        /// Get the language property name string from <see cref="Language"/>
+        /// </summary>
+        /// <param name="language">The <see cref="Language"/> of property</param>
+        /// <returns>The language property name string of <see cref="Language"/></returns>
         public static string GetProperty(Language language)
         {
             switch (language)
@@ -56,10 +66,15 @@ namespace TranslateTools
                 case Language.Spanish:
                     return "l_spanish";
                 default:
-                    return "";
+                    return "l_unknow";
             }
         }
 
+        /// <summary>
+        /// Get the <see cref="Language"/> propety from string
+        /// </summary>
+        /// <param name="name">The string name of <see cref="Language"/></param>
+        /// <returns>The <see cref="Language"/> property</returns>
         public static Language GetLanguage(string name)
         {
             switch (name)
@@ -85,39 +100,71 @@ namespace TranslateTools
             }
         }
 
-        public static string PathChangeLanguage(string path, Language language)
+        /// <summary>
+        /// Generate a new file path from <see cref="Language"/>
+        /// </summary>
+        /// <param name="filePath">The original file path</param>
+        /// <param name="language">The new <see cref="Language"/> of file path</param>
+        /// <returns>The full file path with new <see cref="Language"/></returns>
+        public static string FileLanguageChange(string filePath, Language language)
         {
-            int idx = path.IndexOf("\\localisation");
-            string locFolder = path.Substring(0, idx - 1);
-            int startIdx = path.LastIndexOf('\\') + 1;
-            int endIdx = path.LastIndexOf("_l") - 1;
-            string filename = path.Substring(startIdx, endIdx - startIdx);
+            // Get path of localisation folder
+            string locFolder = Directory.GetParent(filePath).Parent.FullName;
+            // Get of file name without language property
+            string filename = GetFileName(filePath);
             return locFolder + "\\" + GetFolderName(language) + "\\" + filename + "_" + GetProperty(language) + ".yml";
         }
 
-        public static string PathGenerate(string folderPath, string fileName, Language language)
+        /// <summary>
+        /// Generate a file path with the folder path, the file name, and the <see cref="Language"/>
+        /// </summary>
+        /// <param name="folderPath">The folder path of file</param>
+        /// <param name="fileName">The file name without languagne property</param>
+        /// <param name="language">The <see cref="Language"/> of file</param>
+        /// <returns>The full file path</returns>
+        public static string FilePathGenerate(string folderPath, string fileName, Language language)
         {
             return folderPath + "\\" + GetProperty(language) + "\\" + fileName + "_" + GetProperty(language) + ".yml";
         }
 
+        /// <summary>
+        /// Get the mod folder path
+        /// </summary>
+        /// <param name="path">The path of folder or file in mod folder</param>
+        /// <returns>The path of mod folder</returns>
+        /// <exception cref="LocalisationMissingException"></exception>
         public static string GetModFolder(string path)
         {
+            if (path.IndexOf("\\localisation") < 0)
+                throw new LocalisationMissingException();
             int idx = path.IndexOf("\\localisation");
             return path.Substring(0, idx - 1);
         }
 
+        /// <summary>
+        /// Get file name without language property
+        /// </summary>
+        /// <param name="filePath">The path of file</param>
+        /// <returns>The file name without language property</returns>
         public static string GetFileName(string filePath)
         {
-            int startIdx = filePath.LastIndexOf('\\') + 1;
-            int endIdx = filePath.LastIndexOf("_l") - 1;
-            return filePath.Substring(startIdx, endIdx - startIdx);
+            // Get full file name
+            string file = Path.GetFileName(filePath);
+            // Get lenght of file name without language property
+            int nameLength = file.LastIndexOf("_l") - 1;
+            // Return of file name without language property
+            return file.Substring(0, nameLength);
         }
 
+        /// <summary>
+        /// Get <see cref="Language"/> from the folder name
+        /// </summary>
+        /// <param name="folderPath">The path of folder</param>
+        /// <returns>The <see cref="Language"/> of folder</returns>
         public static Language GetFolderLanguage(string folderPath)
         {
-            int startIdx = folderPath.LastIndexOf('\\') + 1;
-            string name = folderPath.Substring(startIdx);
-            switch (name)
+            DirectoryInfo folder = new DirectoryInfo(folderPath);
+            switch (folder.Name)
             {
                 case "braz_por":
                     return Language.BrazPor;

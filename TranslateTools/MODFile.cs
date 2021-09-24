@@ -144,11 +144,11 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// 
+        /// Generate a new file
         /// </summary>
         public void FileGenerate()
         {
-            if (!Folder.Mod.IsTranslateMod)
+            if (!Folder.Mod.IsTranslationMod)
                 throw new Exception("You cannot generate file in original mod folder");
             StreamWriter writer = new StreamWriter(FilePath);
             for (int i = 0; i < Lines.Count; i++)

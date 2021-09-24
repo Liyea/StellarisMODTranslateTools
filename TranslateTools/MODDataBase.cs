@@ -40,7 +40,7 @@ namespace TranslateTools
         /// <see langword="true"/>: This is a translate mod. 
         /// <see langword="false"/>: This is the original mod.
         /// </summary>
-        public bool IsTranslateMod { get; }
+        public bool IsTranslationMod { get; }
 
         // The folder of checking version
         private Dictionary<Language, ModFolder> CheckingFolders;
@@ -59,7 +59,7 @@ namespace TranslateTools
             ModPath = "";
             Folders = new Dictionary<Language, ModFolder>();
             Properties = new Dictionary<string, ModProperty>();
-            IsTranslateMod = true;
+            IsTranslationMod = true;
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace TranslateTools
             Properties = new Dictionary<string, ModProperty>();
             StreamWriter Descriptor = new StreamWriter(modFolderPath + "\\descriptor.mod");
             Descriptor.WriteLine();
-            IsTranslateMod = true;
+            IsTranslationMod = true;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace TranslateTools
 
             //Find descriptor file            
             if (!File.Exists(descriptorPath))
-                throw new FileLoadException("ModDataBase error", new DescriptorMissingException());
+                throw new FileLoadException(nameof(ModDataBase)+" error", new DescriptorMissingException());
             ModPath = Path.GetDirectoryName(descriptorPath);
             
             // Read Mod Name
@@ -120,7 +120,7 @@ namespace TranslateTools
             reader.Close();
 
             if (!hasSupportedVersion)
-                throw new FileLoadException("ModDataBase error", new DescriptorInvalidException());
+                throw new FileLoadException(nameof(ModDataBase) + " error", new DescriptorInvalidException());
 
             // Check Mod Language folder
             for (int i = 0; i < 8; i++)
@@ -129,29 +129,58 @@ namespace TranslateTools
                 string folderPath = ModPath + "\\localisation\\" + ModLanguage.GetFolderName(li);
                 if (Directory.Exists(folderPath))
                 {
-                    Folders.Add(li, new ModFolder(folderPath, this, loadFile));
-                    Folders[li].IsOrigin = true;
+                    Folders.Add(li, new ModFolder(folderPath, this, loadFile));                    
                 }
             }
             if (Folders.Count == 0)
-                throw new FileLoadException("ModDataBase error", new DescriptorWithoutFoldersException());
+                throw new FileLoadException(nameof(ModDataBase) + " error", new LocalisationMissingException());
 
-            IsTranslateMod = isTranslate;
+            IsTranslationMod = isTranslate;
         }
 
         /// <summary>
         /// Get all <see cref="ModFolder"/> properties as an array.
         /// </summary>
-        /// <returns>The array of ModFolders</returns>
+        /// <returns>The array of <see cref="ModFolder"/></returns>
         public ModFolder[] GetFolders()
         {
             Dictionary<Language, ModFolder>.ValueCollection folderValue = Folders.Values;
-            List<ModFolder> folderArray = new List<ModFolder>();
+            List<ModFolder> folderList = new List<ModFolder>();
             foreach (var folder in folderValue)
             {
-                folderArray.Add(folder);
+                folderList.Add(folder);
             }
-            return folderArray.ToArray();
+            return folderList.ToArray();
+        }
+
+        /// <summary>
+        /// Get all <see cref="ModFile"/> properties as an array.
+        /// </summary>
+        /// <returns>The array of <see cref="ModFile"/></returns>
+        public ModFile[] GetFiles()
+        {
+            var fileValue = Files.Values;
+            List<ModFile> fileList = new List<ModFile>();
+            foreach(var file in fileValue)
+            {
+                fileList.Add(file);
+            }
+            return fileList.ToArray();
+        }
+
+        /// <summary>
+        /// Get all <see cref="ModProperty"/> properties as an array.
+        /// </summary>
+        /// <returns>The array of <see cref="ModProperty"/></returns>
+        public ModProperty[] GetProperties()
+        {
+            var propertyValue = Properties.Values;
+            List<ModProperty> propertyList = new List<ModProperty>();
+            foreach(var property in propertyValue)
+            {
+                propertyList.Add(property);
+            }
+            return propertyList.ToArray();
         }
 
         /// <summary>
@@ -178,8 +207,6 @@ namespace TranslateTools
             Dictionary<Language, ModFolder>.ValueCollection folderValues = Folders.Values;
             foreach (var folder in folderValues)
             {
-                if (!folder.IsOrigin)
-                    continue;
                 versionFile.WriteLine($"<folder>");
                 versionFile.WriteLine(folder.FolderLanguage.ToString());
                 versionFile.WriteLine(folder.ModifyTime.ToString());
