@@ -6,40 +6,74 @@ using System.Text;
 
 namespace TranslateTools
 {
-    public enum FileState { Unknow, Done, Modify, Error }
+    public enum FileState
+    {
+        Unknow,
+        Done,
+        Modify,
+        Error
+    }
 
     public class ModFile
     {
-        #region
+        #region Properties
+        /// <summary>
+        /// The <see cref="ModFolder"/> that the file belong to
+        /// </summary>
         public ModFolder Folder;
+        /// <summary>
+        /// The original lines in the file
+        /// </summary>
         public List<ModProperty> Lines;
+        /// <summary>
+        /// The properties in the file
+        /// </summary>
         public Dictionary<string, ModProperty> Properties;
+        /// <summary>
+        /// The path of the file
+        /// </summary>
         public string FilePath;
+        /// <summary>
+        /// The name of the file
+        /// </summary>
         public string Name;
+        /// <summary>
+        /// The language of the file
+        /// </summary>
         public Language Language
         {
             get => Folder.FolderLanguage;
         }
+        /// <summary>
+        /// The <see cref="FileState"/> of this <see cref="ModFile"/>
+        /// </summary>
         public FileState State;
+        /// <summary>
+        /// <see langword="true"/>: the file is exsit        
+        /// </summary>
         public bool Exsit = true;
+        // full name of file
+        private string fullName;
         #endregion
 
         /// <summary>
-        /// 
+        /// Generate a emtpy <see cref="ModFile"/> with a name
         /// </summary>
-        /// <param name="FileName"></param>
+        /// <param name="FileName">The name of <see cref="ModFile"/></param>
         public ModFile(string FileName)
         {
             Name = FileName;
+            fullName = FileName;
             Lines = new List<ModProperty>();
             Properties = new Dictionary<string, ModProperty>();
+            Exsit = false;
         }
 
         /// <summary>
-        /// 
+        /// Generate the complete <see cref="ModFile"/> with file path and <see cref="ModFolder"/>
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="parent"></param>
+        /// <param name="filePath">The path of localisation file</param>
+        /// <param name="parent">The <see cref="ModFolder"/> this file belong to</param>
         public ModFile(string filePath, ModFolder parent)
         {
             // Initialize Dictionary
@@ -47,17 +81,19 @@ namespace TranslateTools
             Properties = new Dictionary<string, ModProperty>();
 
             // Set File Name
-            int startIdx = filePath.LastIndexOf('\\') + 1;
-            int endIdx = filePath.LastIndexOf('_') - 2;
-            Name = filePath.Substring(startIdx, endIdx - startIdx);
             FilePath = filePath;
             Folder = parent;
+            int startIdx = filePath.LastIndexOf('\\') + 1;
+            fullName = filePath.Substring(startIdx);
+            int endIdx = filePath.LastIndexOf(ModLanguage.GetProperty(Language));
+            Name = (endIdx >= startIdx) ? filePath.Substring(startIdx, endIdx - startIdx) : fullName;
 
             // Find File Language
             StreamReader fileReader = new StreamReader(filePath);
             string line = fileReader.ReadLine();
-            Language fileLanguage = ModLanguage.GetLanguage(line.Remove(line.Length - 1));
-            if (fileLanguage != Folder.FolderLanguage)
+            string strLanguage = line.Remove(line.Length - 1);
+            Language fileLanguage = ModLanguage.GetLanguage(strLanguage);
+            if (fileLanguage != Language)
             {
                 fileReader.Close();
                 State = FileState.Error;
@@ -68,7 +104,7 @@ namespace TranslateTools
             // Add Properties
             ModProperty head = new ModProperty();
             head.Text = line;
-            Lines.Add(head); 
+            Lines.Add(head);
             while (!fileReader.EndOfStream)
             {
                 line = fileReader.ReadLine();
@@ -77,11 +113,11 @@ namespace TranslateTools
                 if (!p.IsNote)
                 {
                     try
-                    { 
+                    {
                         Properties.Add(p.Name, p);
                         Folder.Mod.Properties.Add(p.Name, p);
                     }
-                    catch(ArgumentException ex)
+                    catch (ArgumentException ex)
                     {
                         Properties[p.Name].State = PropertySate.MoreThanOne;
                         Console.WriteLine(ex.Message);
@@ -93,9 +129,9 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// 
+        /// Get all <see cref="ModProperty"/> properties as an array.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The array of <see cref="ModProperty"/></returns>
         public ModProperty[] GetProperties()
         {
             Dictionary<string, ModProperty>.ValueCollection propertyValues = Properties.Values;
@@ -108,14 +144,14 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// 
+        /// Clone this <see cref="ModFile"/> to the <see cref="ModFolder"/>
         /// </summary>
-        /// <param name="folder"></param>
-        /// <returns></returns>
+        /// <param name="folder">The <see cref="ModFolder"/> that the cloned <see cref="ModFile"/> belong to</param>
+        /// <returns> The cloned <see cref="ModFile"/></returns>
         public ModFile Clone(ModFolder folder)
         {
             ModFile cloneFile = (ModFile)MemberwiseClone();
-            cloneFile.Folder = folder;            
+            cloneFile.Folder = folder;
             cloneFile.Properties.Clear();
             cloneFile.Lines.Clear();
             for (int i = 0; i < Lines.Count; i++)
@@ -134,13 +170,13 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// 
+        /// Generate the path of the file
         /// </summary>
         /// <param name="folderPath"></param>
         public void PathGenerate()
         {
             string folderPath = Folder.FolderPath;
-            FilePath = folderPath + '\\' + Name + '_' + ModLanguage.GetProperty(Language) + ".yml";
+            FilePath = folderPath + '\\' + fullName;
         }
 
         /// <summary>
@@ -150,19 +186,21 @@ namespace TranslateTools
         {
             if (!Folder.Mod.IsTranslationMod)
                 throw new Exception("You cannot generate file in original mod folder");
+            PathGenerate();
             StreamWriter writer = new StreamWriter(FilePath);
             for (int i = 0; i < Lines.Count; i++)
             {
                 writer.WriteLine(Lines[i].GetLine());
             }
             writer.Close();
+            Exsit = true;
         }
 
         /// <summary>
         /// Copy <see cref="ModProperty"/> from another <see cref="ModFile"/>
         /// </summary>
         /// <param name="originalFile">The source <see cref="ModFile"/> of properties</param>
-        public void CopyLines(ModFile originalFile) 
+        public void CopyLines(ModFile originalFile)
         {
             ModProperty head = Lines[0];
             Lines.Clear();

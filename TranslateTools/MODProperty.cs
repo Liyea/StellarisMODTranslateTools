@@ -5,7 +5,17 @@ using System.Text;
 
 namespace TranslateTools
 {
-    public enum PropertySate { Unknow, New, Missing, Modify, Done, Remove, MoreThanOne, FileModify }
+    public enum PropertySate 
+    { 
+        Unknow,
+        New,
+        Missing,
+        Modify,
+        Done,
+        Remove,
+        MoreThanOne,
+        FileModify 
+    }
 
     public class ModProperty
     {

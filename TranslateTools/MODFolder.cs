@@ -39,6 +39,7 @@ namespace TranslateTools
         public ModDataBase Mod;
         #endregion
 
+        #region Constructor Methods
         /// <summary>
         /// Create a empty folder
         /// </summary>
@@ -78,6 +79,7 @@ namespace TranslateTools
             if (loadFiles)
                 LoadFiles();
         }
+        #endregion
 
         /// <summary>
         /// Load all of files in folder
@@ -90,7 +92,7 @@ namespace TranslateTools
             foreach (var filePath in FilePathList)
             {
                 DateTime fileTime = File.GetLastWriteTime(filePath);
-                if (ModifyTime.CompareTo(fileTime) > 0)
+                if (ModifyTime.CompareTo(fileTime) < 0)
                     ModifyTime = fileTime;
                 ModFile file = new ModFile(filePath, this);
                 Files.Add(file.Name, file);
@@ -163,6 +165,11 @@ namespace TranslateTools
             }
             cloneFolder.FilePathList = fileList.ToArray();
             return cloneFolder;
+        }
+
+        public override string ToString()
+        {            
+            return ModLanguage.GetFolderName(FolderLanguage);
         }
     }
 }

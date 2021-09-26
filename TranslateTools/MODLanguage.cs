@@ -5,9 +5,20 @@ namespace TranslateTools
     /// <summary>
     /// The enumerate of Stellaris Mod language
     /// </summary>
-    public enum Language { Unknow, BrazPor, English, French, German, Polish, Russian, SimpleChinese, Spanish }
+    public enum Language 
+    { 
+        Unknow, 
+        BrazPor, 
+        English, 
+        French, 
+        German, 
+        Polish, 
+        Russian, 
+        SimpleChinese, 
+        Spanish 
+    }
 
-    static class ModLanguage
+    public static class ModLanguage
     {
         #region Static Function
         /// <summary>
@@ -47,36 +58,47 @@ namespace TranslateTools
         /// <returns>The language property name string of <see cref="Language"/></returns>
         public static string GetProperty(Language language)
         {
-            switch (language)
+            return $"l_{GetFolderName(language)}";
+        }        
+
+        /// <summary>
+        /// Get <see cref="Language"/> from the folder name
+        /// </summary>
+        /// <param name="folderPath">The path of folder</param>
+        /// <returns>The <see cref="Language"/> of folder</returns>
+        public static Language GetFolderLanguage(string folderPath)
+        {
+            DirectoryInfo folder = new DirectoryInfo(folderPath);
+            switch (folder.Name)
             {
-                case Language.BrazPor:
-                    return "l_braz_por";
-                case Language.English:
-                    return "l_english";
-                case Language.French:
-                    return "l_french";
-                case Language.German:
-                    return "l_german";
-                case Language.Polish:
-                    return "l_polish";
-                case Language.Russian:
-                    return "l_russian";
-                case Language.SimpleChinese:
-                    return "l_simp_chinese";
-                case Language.Spanish:
-                    return "l_spanish";
+                case "braz_por":
+                    return Language.BrazPor;
+                case "english":
+                    return Language.English;
+                case "french":
+                    return Language.French;
+                case "german":
+                    return Language.German;
+                case "polish":
+                    return Language.Polish;
+                case "russian":
+                    return Language.Russian;
+                case "simp_chinese":
+                    return Language.SimpleChinese;
+                case "spanish":
+                    return Language.Spanish;
                 default:
-                    return "l_unknow";
+                    return Language.Unknow;
             }
         }
 
         /// <summary>
-        /// Get the <see cref="Language"/> propety from string
+        /// Get the <see cref="Language"/> propety from property string
         /// </summary>
         /// <param name="name">The string name of <see cref="Language"/></param>
         /// <returns>The <see cref="Language"/> property</returns>
         public static Language GetLanguage(string name)
-        {
+        {            
             switch (name)
             {
                 case "l_braz_por":
@@ -154,38 +176,7 @@ namespace TranslateTools
             int nameLength = file.LastIndexOf("_l") - 1;
             // Return of file name without language property
             return file.Substring(0, nameLength);
-        }
-
-        /// <summary>
-        /// Get <see cref="Language"/> from the folder name
-        /// </summary>
-        /// <param name="folderPath">The path of folder</param>
-        /// <returns>The <see cref="Language"/> of folder</returns>
-        public static Language GetFolderLanguage(string folderPath)
-        {
-            DirectoryInfo folder = new DirectoryInfo(folderPath);
-            switch (folder.Name)
-            {
-                case "braz_por":
-                    return Language.BrazPor;
-                case "english":
-                    return Language.English;
-                case "french":
-                    return Language.French;
-                case "german":
-                    return Language.German;
-                case "polish":
-                    return Language.Polish;
-                case "russian":
-                    return Language.Russian;
-                case "simp_chinese":
-                    return Language.SimpleChinese;
-                case "spanish":
-                    return Language.Spanish;
-                default:
-                    return Language.Unknow;
-            }
-        }
+        }        
         #endregion
     }
 }

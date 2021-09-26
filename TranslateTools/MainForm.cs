@@ -37,8 +37,9 @@ namespace TranslateTools
             {
                 // Load Mod descriptor and localisation folders
                 Mod = new ModDataBase(txtModPath.Text, true, false);
-                var folder = Mod.GetFolders();
-                ModLanguage.GetFolderLanguage(folder[0].FolderPath);
+                lblUpdateTime.Text = $"Last Update: {Mod.ModifyTime:yyyy/MM/dd}";
+                //var folder = Mod.GetFolders();
+                //ModLanguage.GetFolderLanguage(folder[0].FolderPath);
             }
             catch(FileLoadException flex)
             {                
