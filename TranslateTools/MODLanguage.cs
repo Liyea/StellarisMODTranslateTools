@@ -5,17 +5,17 @@ namespace TranslateTools
     /// <summary>
     /// The enumerate of Stellaris Mod language
     /// </summary>
-    public enum Language 
-    { 
-        Unknow, 
-        BrazPor, 
-        English, 
-        French, 
-        German, 
-        Polish, 
-        Russian, 
-        SimpleChinese, 
-        Spanish 
+    public enum Language
+    {
+        Unknow,
+        BrazPor,
+        English,
+        French,
+        German,
+        Polish,
+        Russian,
+        SimpleChinese,
+        Spanish
     }
 
     public static class ModLanguage
@@ -59,7 +59,7 @@ namespace TranslateTools
         public static string GetProperty(Language language)
         {
             return $"l_{GetFolderName(language)}";
-        }        
+        }
 
         /// <summary>
         /// Get <see cref="Language"/> from the folder name
@@ -98,7 +98,7 @@ namespace TranslateTools
         /// <param name="name">The string name of <see cref="Language"/></param>
         /// <returns>The <see cref="Language"/> property</returns>
         public static Language GetLanguage(string name)
-        {            
+        {
             switch (name)
             {
                 case "l_braz_por":
@@ -123,30 +123,42 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// Generate a new file path from <see cref="Language"/>
+        /// Generate a new file path from new <see cref="Language"/>
         /// </summary>
         /// <param name="filePath">The original file path</param>
-        /// <param name="language">The new <see cref="Language"/> of file path</param>
+        /// <param name="language">The new file path</param>
         /// <returns>The full file path with new <see cref="Language"/></returns>
         public static string FileLanguageChange(string filePath, Language language)
         {
             // Get path of localisation folder
             string locFolder = Directory.GetParent(filePath).Parent.FullName;
-            // Get of file name without language property
-            string filename = GetFileName(filePath);
-            return locFolder + "\\" + GetFolderName(language) + "\\" + filename + "_" + GetProperty(language) + ".yml";
+            // Get old folder language
+            Language oldLanguage = GetFolderLanguage(Directory.GetParent(filePath).FullName);
+            // Change language property in file name
+            string fileName = Path.GetFileName(filePath);
+            fileName = fileName.Replace(GetProperty(oldLanguage), GetProperty(language));
+            return locFolder + "\\" + GetFolderName(language) + "\\" + fileName;
         }
 
         /// <summary>
         /// Generate a file path with the folder path, the file name, and the <see cref="Language"/>
         /// </summary>
-        /// <param name="folderPath">The folder path of file</param>
+        /// <param name="folderPath">The path of localisation folder</param>
         /// <param name="fileName">The file name without languagne property</param>
         /// <param name="language">The <see cref="Language"/> of file</param>
         /// <returns>The full file path</returns>
         public static string FilePathGenerate(string folderPath, string fileName, Language language)
         {
-            return folderPath + "\\" + GetProperty(language) + "\\" + fileName + "_" + GetProperty(language) + ".yml";
+            Language oldLanguage;
+            for (int i = 1; i < 8; i++)
+            {
+                oldLanguage = (Language)i;
+                if (oldLanguage == language)
+                    break;
+                fileName = fileName.Replace(GetProperty(oldLanguage), GetProperty(language));
+            }
+            // Change language property in file name
+            return folderPath + "\\" + GetProperty(language) + "\\" + fileName;
         }
 
         /// <summary>
@@ -176,7 +188,7 @@ namespace TranslateTools
             int nameLength = file.LastIndexOf("_l") - 1;
             // Return of file name without language property
             return file.Substring(0, nameLength);
-        }        
+        }
         #endregion
     }
 }
