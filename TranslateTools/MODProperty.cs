@@ -5,8 +5,8 @@ using System.Text;
 
 namespace TranslateTools
 {
-    public enum PropertySate 
-    { 
+    public enum PropertySate
+    {
         Unknow,
         New,
         Missing,
@@ -14,7 +14,7 @@ namespace TranslateTools
         Done,
         Remove,
         MoreThanOne,
-        FileModify 
+        FileModify
     }
 
     public class ModProperty
@@ -47,10 +47,30 @@ namespace TranslateTools
         /// </summary>
         public ModFile File;
         /// <summary>
-        /// The text of proprety
+        /// The content of proprety, will dispaly newlines
         /// </summary>
-        public string Text;
-        
+        public string Content
+        {
+            get => content;
+            set
+            {
+                SetContent(value);
+            }
+        }
+        /// <summary>
+        /// The content displayed in the game, will display multiple lines
+        /// </summary>
+        public string DisplayContent
+        {
+            get => displayContent;
+            set
+            {
+                SetDisplayContent(value);
+            }
+        }
+
+        private string content;
+        private string displayContent;
         private bool isNote = false;
         #endregion
 
@@ -60,30 +80,30 @@ namespace TranslateTools
         public ModProperty()
         {
             Name = "Language";
-            Text = "";
+            Content = "";
             isNote = true;
         }
 
         /// <summary>
-        /// Record the text of property and create a ModFile class
+        /// Record the content of property and create a ModFile class
         /// </summary>
-        /// <param name="line">The recorded text of property</param>
+        /// <param name="content">The recorded content of property</param>
         /// <param name="fileName">The name of created file</param>
-        public ModProperty(string line, string fileName)
+        public ModProperty(string content, string fileName)
         {
-            isNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
+            isNote = (content.IndexOf("#") == 0) || (content.IndexOf(':') < 0);
             File = new ModFile(fileName);
             if (IsNote)
             {
-                Text = line;
+                Content = content;
             }
             else
             {
-                int EndIndex = line.IndexOf(":");
-                Name = line.Substring(0, EndIndex);
-                int StartIndex = line.IndexOf('\"');
-                EndIndex = line.LastIndexOf('\"');
-                Text = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
+                int EndIndex = content.IndexOf(":");
+                Name = content.Substring(0, EndIndex);
+                int StartIndex = content.IndexOf('\"');
+                EndIndex = content.LastIndexOf('\"');
+                Content = content.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
             }
         }
 
@@ -98,7 +118,7 @@ namespace TranslateTools
             isNote = (line.IndexOf("#") == 0) || (line.IndexOf(':') < 0);
             if (IsNote)
             {
-                Text = line;
+                Content = line;
             }
             else
             {
@@ -106,8 +126,8 @@ namespace TranslateTools
                 Name = line.Substring(0, EndIndex);
                 int StartIndex = line.IndexOf('\"');
                 EndIndex = line.LastIndexOf('\"');
-                Text = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
-            }            
+                Content = line.Substring(StartIndex + 1, EndIndex - StartIndex - 1);
+            }
         }
 
         /// <summary>
@@ -121,7 +141,7 @@ namespace TranslateTools
                 return PropertySate.Unknow;
             else if (other.Language != Language)
                 return PropertySate.Unknow;
-            else if (other.Text == Text)
+            else if (other.Content == Content)
                 return PropertySate.Done;
             else if (other.File.Name != File.Name)
                 return PropertySate.FileModify;
@@ -136,10 +156,9 @@ namespace TranslateTools
         public string GetLine()
         {
             if (IsNote)
-                return Text;
+                return Content;
             else
-                return $"{Name}:0 \"{Text}\"";
-            
+                return $"{Name}:0 \"{Content}\"";
         }
 
         /// <summary>
@@ -153,9 +172,20 @@ namespace TranslateTools
             cloneMODProperty.Name = (string)Name.Clone();
             cloneMODProperty.State = PropertySate.Unknow;
             cloneMODProperty.File = parent;
-            cloneMODProperty.Text = (string)Text.Clone();
+            cloneMODProperty.Content = (string)Content.Clone();
 
             return cloneMODProperty;
+        }
+
+        private void SetContent(string content)
+        {
+            this.content = content;
+            displayContent = content.Replace("\\n", "\n");
+        }
+        private void SetDisplayContent(string displayContent)
+        {
+            this.displayContent = displayContent;
+            content = displayContent.Replace("\n", "\\n");
         }
     }
 }
