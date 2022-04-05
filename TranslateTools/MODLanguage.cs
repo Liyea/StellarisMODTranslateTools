@@ -20,6 +20,18 @@ namespace TranslateTools
 
     public static class ModLanguage
     {
+        private static string[] languageFolderName =
+        {
+            "unknow",
+            "braz_por",
+            "english",
+            "french",
+            "german",
+            "polish",
+            "russian",
+            "simp_chinese",
+            "spanish"
+        };
         #region Static Function
         /// <summary>
         /// Get the language folder name string from <see cref="Language"/>
@@ -28,27 +40,7 @@ namespace TranslateTools
         /// <returns>The language folder name string of <see cref="Language"/></returns>
         public static string GetFolderName(Language language)
         {
-            switch (language)
-            {
-                case Language.BrazPor:
-                    return "braz_por";
-                case Language.English:
-                    return "english";
-                case Language.French:
-                    return "french";
-                case Language.German:
-                    return "german";
-                case Language.Polish:
-                    return "polish";
-                case Language.Russian:
-                    return "russian";
-                case Language.SimpleChinese:
-                    return "simp_chinese";
-                case Language.Spanish:
-                    return "spanish";
-                default:
-                    return "unknow";
-            }
+            return languageFolderName[(int)language];
         }
 
         /// <summary>
@@ -58,7 +50,7 @@ namespace TranslateTools
         /// <returns>The language property name string of <see cref="Language"/></returns>
         public static string GetProperty(Language language)
         {
-            return $"l_{GetFolderName(language)}";
+            return "l_" + GetFolderName(language);
         }
 
         /// <summary>
@@ -123,11 +115,11 @@ namespace TranslateTools
         }
 
         /// <summary>
-        /// Generate a new file path from new <see cref="Language"/>
+        /// Generate a new file path from <see cref="Language"/>
         /// </summary>
         /// <param name="filePath">The original file path</param>
         /// <param name="language">The new file path</param>
-        /// <returns>The full file path with new <see cref="Language"/></returns>
+        /// <returns>The new full file path with <see cref="Language"/></returns>
         public static string FileLanguageChange(string filePath, Language language)
         {
             // Get path of localisation folder
@@ -154,11 +146,11 @@ namespace TranslateTools
             {
                 oldLanguage = (Language)i;
                 if (oldLanguage == language)
-                    break;
-                fileName = fileName.Replace(GetProperty(oldLanguage), GetProperty(language));
+                    continue;
+                fileName = fileName.Replace(GetProperty(oldLanguage), GetProperty(language));                
             }
             // Change language property in file name
-            return folderPath + "\\" + GetProperty(language) + "\\" + fileName;
+            return folderPath + "\\" + GetFolderName(language) + "\\" + fileName;
         }
 
         /// <summary>
@@ -185,7 +177,7 @@ namespace TranslateTools
             // Get full file name
             string file = Path.GetFileName(filePath);
             // Get lenght of file name without language property
-            int nameLength = file.LastIndexOf("_l") - 1;
+            int nameLength = file.LastIndexOf(".yml") - 1;
             // Return of file name without language property
             return file.Substring(0, nameLength);
         }
