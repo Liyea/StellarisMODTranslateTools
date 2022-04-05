@@ -53,7 +53,7 @@ namespace TranslateTools
         /// </summary>
         public bool Exsit = true;
         // full name of file
-        private string fullName;
+        //private string fullName;
         #endregion
 
         /// <summary>
@@ -63,14 +63,14 @@ namespace TranslateTools
         public ModFile(string FileName)
         {
             Name = FileName;
-            fullName = FileName;
+            //fullName = FileName;
             Lines = new List<ModProperty>();
             Properties = new Dictionary<string, ModProperty>();
             Exsit = false;
         }
 
         /// <summary>
-        /// Generate the complete <see cref="ModFile"/> with file path and <see cref="ModFolder"/>
+        /// Generate the complete <see cref="ModFile"/> with file path and <see cref="ModFolder"/> parent
         /// </summary>
         /// <param name="filePath">The path of localisation file</param>
         /// <param name="parent">The <see cref="ModFolder"/> this file belong to</param>
@@ -83,10 +83,12 @@ namespace TranslateTools
             // Set File Name
             FilePath = filePath;
             Folder = parent;
-            int startIdx = filePath.LastIndexOf('\\') + 1;
-            fullName = filePath.Substring(startIdx);
-            int endIdx = filePath.LastIndexOf(ModLanguage.GetProperty(Language));
-            Name = (endIdx >= startIdx) ? filePath.Substring(startIdx, endIdx - startIdx) : fullName;
+            Name = ModLanguage.GetFileName(filePath);
+            //int startIdx = filePath.LastIndexOf('\\') + 1;
+            //fullName = filePath.Substring(startIdx);
+            //int endIdx = filePath.LastIndexOf(".yml");
+            //Name = (endIdx >= startIdx) ? filePath.Substring(startIdx, endIdx - startIdx) : fullName;
+
 
             // Find File Language
             StreamReader fileReader = new StreamReader(filePath);
@@ -102,8 +104,10 @@ namespace TranslateTools
             Folder.Mod.Files.Add(Name, this);
 
             // Add Properties
-            ModProperty head = new ModProperty();
-            head.Text = line;
+            ModProperty head = new ModProperty
+            {
+                Content = line
+            };
             Lines.Add(head);
             while (!fileReader.EndOfStream)
             {
@@ -176,7 +180,7 @@ namespace TranslateTools
         public void PathGenerate()
         {
             string folderPath = Folder.FolderPath;
-            FilePath = folderPath + '\\' + fullName;
+            FilePath = folderPath + '\\' + Name + ".yml";
         }
 
         /// <summary>
