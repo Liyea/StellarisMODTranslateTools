@@ -32,6 +32,7 @@ namespace TranslateTools
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabCheck = new System.Windows.Forms.TabPage();
+            this.lblUpdateTime = new System.Windows.Forms.Label();
             this.btnTranslateLoad = new System.Windows.Forms.Button();
             this.btnGenerate = new System.Windows.Forms.Button();
             this.chbGenerateChecking = new System.Windows.Forms.CheckBox();
@@ -42,6 +43,8 @@ namespace TranslateTools
             this.cboxOriginalLanguage = new System.Windows.Forms.ComboBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.trvModTree = new System.Windows.Forms.TreeView();
+            this.lblDescript = new System.Windows.Forms.Label();
+            this.lblNodeName = new System.Windows.Forms.Label();
             this.btnModLoad = new System.Windows.Forms.Button();
             this.tabTranslate = new System.Windows.Forms.TabPage();
             this.tabSetting = new System.Windows.Forms.TabPage();
@@ -57,11 +60,13 @@ namespace TranslateTools
             this.sfdSMOF = new System.Windows.Forms.SaveFileDialog();
             this.ofdDescriptor = new System.Windows.Forms.OpenFileDialog();
             this.sfdDescriptor = new System.Windows.Forms.SaveFileDialog();
-            this.lblUpdateTime = new System.Windows.Forms.Label();
+            this.txtbDescript = new System.Windows.Forms.TextBox();
+            this.listbPropertiesList = new System.Windows.Forms.ListBox();
             this.tabControl1.SuspendLayout();
             this.tabCheck.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabSetting.SuspendLayout();
             this.SuspendLayout();
@@ -102,6 +107,16 @@ namespace TranslateTools
             this.tabCheck.TabIndex = 0;
             this.tabCheck.Text = "File Check";
             this.tabCheck.UseVisualStyleBackColor = true;
+            // 
+            // lblUpdateTime
+            // 
+            this.lblUpdateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblUpdateTime.AutoSize = true;
+            this.lblUpdateTime.Location = new System.Drawing.Point(371, 11);
+            this.lblUpdateTime.Name = "lblUpdateTime";
+            this.lblUpdateTime.Size = new System.Drawing.Size(66, 12);
+            this.lblUpdateTime.TabIndex = 11;
+            this.lblUpdateTime.Text = "Last Update: ";
             // 
             // btnTranslateLoad
             // 
@@ -212,6 +227,13 @@ namespace TranslateTools
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.Controls.Add(this.trvModTree);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.listbPropertiesList);
+            this.splitContainer1.Panel2.Controls.Add(this.txtbDescript);
+            this.splitContainer1.Panel2.Controls.Add(this.lblDescript);
+            this.splitContainer1.Panel2.Controls.Add(this.lblNodeName);
             this.splitContainer1.Size = new System.Drawing.Size(1076, 474);
             this.splitContainer1.SplitterDistance = 358;
             this.splitContainer1.TabIndex = 2;
@@ -223,7 +245,27 @@ namespace TranslateTools
             this.trvModTree.Name = "trvModTree";
             this.trvModTree.Size = new System.Drawing.Size(358, 474);
             this.trvModTree.TabIndex = 1;
-            this.trvModTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.SelectNode);
+            this.trvModTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.trvModTree_AfterSelect);
+            // 
+            // lblDescript
+            // 
+            this.lblDescript.AutoSize = true;
+            this.lblDescript.Location = new System.Drawing.Point(21, 38);
+            this.lblDescript.Name = "lblDescript";
+            this.lblDescript.Size = new System.Drawing.Size(46, 12);
+            this.lblDescript.TabIndex = 1;
+            this.lblDescript.Text = "Descript:";
+            this.lblDescript.Visible = false;
+            // 
+            // lblNodeName
+            // 
+            this.lblNodeName.AutoSize = true;
+            this.lblNodeName.Location = new System.Drawing.Point(21, 14);
+            this.lblNodeName.Name = "lblNodeName";
+            this.lblNodeName.Size = new System.Drawing.Size(78, 12);
+            this.lblNodeName.TabIndex = 0;
+            this.lblNodeName.Text = "Property Name:";
+            this.lblNodeName.Visible = false;
             // 
             // btnModLoad
             // 
@@ -365,15 +407,28 @@ namespace TranslateTools
             this.sfdDescriptor.Filter = "Stellaris mod file|*.mod";
             this.sfdDescriptor.Title = "Save Check File";
             // 
-            // lblUpdateTime
+            // txtbDescript
             // 
-            this.lblUpdateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblUpdateTime.AutoSize = true;
-            this.lblUpdateTime.Location = new System.Drawing.Point(371, 11);
-            this.lblUpdateTime.Name = "lblUpdateTime";
-            this.lblUpdateTime.Size = new System.Drawing.Size(66, 12);
-            this.lblUpdateTime.TabIndex = 11;
-            this.lblUpdateTime.Text = "Last Update: ";
+            this.txtbDescript.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtbDescript.Location = new System.Drawing.Point(23, 63);
+            this.txtbDescript.Multiline = true;
+            this.txtbDescript.Name = "txtbDescript";
+            this.txtbDescript.ReadOnly = true;
+            this.txtbDescript.Size = new System.Drawing.Size(645, 88);
+            this.txtbDescript.TabIndex = 2;
+            this.txtbDescript.Visible = false;
+            // 
+            // listbPropertiesList
+            // 
+            this.listbPropertiesList.FormattingEnabled = true;
+            this.listbPropertiesList.ItemHeight = 12;
+            this.listbPropertiesList.Location = new System.Drawing.Point(23, 63);
+            this.listbPropertiesList.Name = "listbPropertiesList";
+            this.listbPropertiesList.Size = new System.Drawing.Size(305, 88);
+            this.listbPropertiesList.TabIndex = 3;
+            this.listbPropertiesList.Visible = false;
+            this.listbPropertiesList.SelectedIndexChanged += new System.EventHandler(this.SelectPropertyNode);
             // 
             // MainForm
             // 
@@ -388,6 +443,8 @@ namespace TranslateTools
             this.tabCheck.ResumeLayout(false);
             this.tabCheck.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.tabSetting.ResumeLayout(false);
@@ -427,6 +484,10 @@ namespace TranslateTools
         private System.Windows.Forms.Button btnTranslateLoad;
         private System.Windows.Forms.TreeView trvModTree;
         private System.Windows.Forms.Label lblUpdateTime;
+        private System.Windows.Forms.Label lblDescript;
+        private System.Windows.Forms.Label lblNodeName;
+        private System.Windows.Forms.TextBox txtbDescript;
+        private System.Windows.Forms.ListBox listbPropertiesList;
     }
 }
 

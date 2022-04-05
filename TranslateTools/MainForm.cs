@@ -41,19 +41,19 @@ namespace TranslateTools
                 //var folder = Mod.GetFolders();
                 //ModLanguage.GetFolderLanguage(folder[0].FolderPath);
             }
-            catch(FileLoadException flex)
-            {                
+            catch (FileLoadException flex)
+            {
                 // Show error message
-                MessageBox.Show(flex.Message,"Original Mod files loading failed",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(flex.Message, "Original Mod files loading failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }           
+            }
 
             Text = "Stellaris Mod Translate Tools: " + Mod.ModName;
 
             FileLoading = new Thread(GenerateTree);
             TreeNode ModNode = new TreeNode(Mod.ModName);
             trvModTree.Nodes.Clear();
-            trvModTree.Nodes.Add(ModNode);            
+            trvModTree.Nodes.Add(ModNode);
             for (int i = 0; i < 8; i++)
             {
                 Language l = (Language)i;
@@ -87,7 +87,7 @@ namespace TranslateTools
 
         private void btnCheckingFileBrowse_Click(object sender, EventArgs e)
         {
-            string path = Path.GetExtension(txtModCheckPath.Text);            
+            string path = Path.GetExtension(txtModCheckPath.Text);
             if (path == ".smodc")
             {
                 path = Path.GetDirectoryName(txtModCheckPath.Text);
@@ -97,18 +97,18 @@ namespace TranslateTools
 
             if (Directory.Exists(path))
                 sfdSMOF.InitialDirectory = path;
-            
+
             if (sfdSMOF.ShowDialog() == DialogResult.OK)
                 txtModCheckPath.Text = sfdSMOF.FileName;
         }
         #endregion
-        
+
         private void AddNodeToTreeViewMethod(TreeView treeView, TreeNode child)
         {
             treeView.Nodes.Add(child);
         }
 
-        private void AddNodeToNodeMethod(TreeNode parent,TreeNode child)
+        private void AddNodeToNodeMethod(TreeNode parent, TreeNode child)
         {
             parent.Nodes.Add(child);
         }
@@ -117,7 +117,7 @@ namespace TranslateTools
         {
             if (!File.Exists(txtModCheckPath.Text) && chbGenerateChecking.Checked)
             {
-                if(MessageBox.Show("Checking file couldn't be found.\n" +
+                if (MessageBox.Show("Checking file couldn't be found.\n" +
                     "Do you want to create new one?", "Version File Missing", MessageBoxButtons.YesNo) == DialogResult.OK)
                 {
                     Mod.GenerateCheckingFile(txtModCheckPath.Text);
@@ -134,20 +134,17 @@ namespace TranslateTools
             {
                 TreeNode FileNode = new TreeNode(file.Name);
                 FileNode.Name = file.Name;
-                Invoke(addNodeToTreeView, trvModTree, FileNode);                
+                FileNode.Tag = file;
+                Invoke(addNodeToTreeView, trvModTree, FileNode);
                 ModProperty[] ModProperties = file.GetProperties();
                 foreach (var property in ModProperties)
                 {
                     TreeNode propertyNode = new TreeNode(property.Name);
                     propertyNode.Name = property.Name;
+                    propertyNode.Tag = property;
                     Invoke(addNodeToNode, FileNode, propertyNode);
                 }
-            }            
-        }
-
-        private void SelectNode(object sender, TreeNodeMouseClickEventArgs e)
-        {
-
+            }
         }
 
         private void btnTranslateLoad_Click(object sender, EventArgs e)
@@ -181,6 +178,67 @@ namespace TranslateTools
                 }
 
             }
+        }
+
+        private void trvModTree_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            listbPropertiesList.Tag = null;
+            if (trvModTree.SelectedNode == null)
+            {
+                lblNodeName.Visible = false;
+                lblNodeName.Text = "";
+                txtbDescript.Text = "";
+                txtbDescript.Visible = false;
+                lblDescript.Visible = false;
+                listbPropertiesList.Visible = false;
+                return;
+            }
+            else
+            {
+                lblNodeName.Visible = true;
+                lblDescript.Visible = true;
+            }
+
+            if (trvModTree.SelectedNode.Tag is ModProperty)
+            {
+                ModProperty modProperty = trvModTree.SelectedNode.Tag as ModProperty;
+                lblNodeName.Text = "Property Name:" + modProperty.Name;
+                lblDescript.Text = "Properties Descript:";
+                txtbDescript.Text = modProperty.DisplayContent;
+                txtbDescript.Visible = true;
+                listbPropertiesList.Visible = false;
+            }
+            else if (trvModTree.SelectedNode.Tag is ModFile)
+            {
+                ModFile modFile = trvModTree.SelectedNode.Tag as ModFile;
+                lblNodeName.Text = "File Name:" + modFile.Name;
+                lblDescript.Text = "Properties List:";
+                txtbDescript.Text = "";
+                txtbDescript.Visible = false;
+                listbPropertiesList.Visible = true;
+                listbPropertiesList.Items.Clear();
+                listbPropertiesList.Tag = trvModTree.SelectedNode;
+                foreach (var modProperty in modFile.Properties.Values)
+                {
+                    listbPropertiesList.Items.Add(modProperty.Name);
+                }
+            }
+            else
+            {
+                lblNodeName.Visible = false;
+                lblNodeName.Text = "";
+                txtbDescript.Text = "";
+                txtbDescript.Visible = false;
+                lblDescript.Visible = false;
+                listbPropertiesList.Visible = false;
+            }
+        }
+
+        private void SelectPropertyNode(object sender, EventArgs e)
+        {
+            TreeNode fileNode = listbPropertiesList.Tag as TreeNode;
+            TreeNode[] propertyNode = fileNode.Nodes.Find(listbPropertiesList.SelectedItem.ToString(), true);
+            trvModTree.SelectedNode = propertyNode[0];
         }
     }
 }
