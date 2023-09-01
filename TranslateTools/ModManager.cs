@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TranslateTools
 {
-    internal class ModManager
+    public class ModManager
     {
     }
 }
